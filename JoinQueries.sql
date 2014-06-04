@@ -198,27 +198,30 @@ CREATE INDEX users_state ON users(state)
 CREATE INDEX users_name ON users(name)
 CREATE INDEX sales_uid ON sales(uid)
 
---product,user
+--product,user (precomputed)
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, u.state, SUM(s.quantity*s.price) FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id GROUP BY p.id, u.id)
 
+SELECT * FROM prod_user
+
 --all
 SELECT SUM(sum) FROM prod_user
-
-27590055
 
 --category
 SELECT cid, SUM(sum) FROM prodTot GROUP BY cid, sum
 
---product
-CREATE TABLE prodTot AS (SELECT pid, cid, SUM(sum) FROM prod_user GROUP BY pid, cid)
+--product (precomputed)
+CREATE TABLE prodTot AS (SELECT pid, name, cid, SUM(sum) FROM prod_user GROUP BY pid, name, cid)
 
 --all
 SELECT SUM(sum) FROM prodTot
 
---category,user
-CREATE TABLE cat_user AS (SELECT cid, id, SUM(sum) FROM prod_user GROUP BY cid, id)
+-- top 10 products
+SELECT * FROM prodTot ORDER BY sum desc LIMIT 10
+
+--category,user (precomputed)
+CREATE TABLE cat_user AS (SELECT cid, id, uname, SUM(sum) FROM prod_user GROUP BY cid, id, uname)
 
 --all
 SELECT SUM(sum) FROM cat_user
@@ -226,5 +229,10 @@ SELECT SUM(sum) FROM cat_user
 --category
 SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
 
---user
-SELECT id, SUM(sum) FROM cat_user GROUP BY id
+--user (precomputed)
+CREATE TABLE customers AS (SELECT id, uname, SUM(sum) FROM cat_user GROUP BY id, uname)
+
+-- top 20 users
+SELECT * FROM customers ORDER BY sum desc LIMIT 20
+
+SELECT id, uname, SUM(sum) FROM cat_user GROUP BY id, uname ORDER BY sum desc LIMIT 20
