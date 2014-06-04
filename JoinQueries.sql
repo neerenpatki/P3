@@ -203,20 +203,28 @@ CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as un
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id GROUP BY p.id, u.id)
 
-DROP TABLE prod_user
+--all
+SELECT SUM(sum) FROM prod_user
+
+27590055
+
+--category
+SELECT cid, SUM(sum) FROM prodTot GROUP BY cid, sum
 
 --product
-CREATE TABLE prodTot AS (SELECT name, SUM(sum) FROM prod_user GROUP BY name)
+CREATE TABLE prodTot AS (SELECT pid, cid, SUM(sum) FROM prod_user GROUP BY pid, cid)
 
-DROP TABLE prodTot
-
-SELECT * FROM prodTot
+--all
+SELECT SUM(sum) FROM prodTot
 
 --category,user
-CREATE TABLE cat_user AS (SELECT cid, uname, SUM(sum) FROM prod_user GROUP BY cid, uname)
+CREATE TABLE cat_user AS (SELECT cid, id, SUM(sum) FROM prod_user GROUP BY cid, id)
+
+--all
+SELECT SUM(sum) FROM cat_user
 
 --category
 SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
 
 --user
-SELECT uname, SUM(sum) FROM cat_user GROUP BY uname
+SELECT id, SUM(sum) FROM cat_user GROUP BY id
