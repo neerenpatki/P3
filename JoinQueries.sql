@@ -197,3 +197,26 @@ CREATE INDEX sales_pid ON sales(pid)
 CREATE INDEX users_state ON users(state)
 CREATE INDEX users_name ON users(name)
 CREATE INDEX sales_uid ON sales(uid)
+
+--product,user
+CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, u.state, SUM(s.quantity*s.price) FROM products p LEFT OUTER JOIN categories c 
+ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
+ON s.uid = u.id GROUP BY p.id, u.id)
+
+DROP TABLE prod_user
+
+--product
+CREATE TABLE prodTot AS (SELECT name, SUM(sum) FROM prod_user GROUP BY name)
+
+DROP TABLE prodTot
+
+SELECT * FROM prodTot
+
+--category,user
+CREATE TABLE cat_user AS (SELECT cid, uname, SUM(sum) FROM prod_user GROUP BY cid, uname)
+
+--category
+SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
+
+--user
+SELECT uname, SUM(sum) FROM cat_user GROUP BY uname
