@@ -11,14 +11,14 @@ CREATE TABLE users (
     name        TEXT NOT NULL UNIQUE,
     role        TEXT NOT NULL,
     age   	INTEGER NOT NULL,
-    state  	TEXT NOT NULL
+    stateID  	INTEGER REFERENCES states (id) NOT NULL ON DELETE CASCADE
 );
-INSERT INTO users (name, role, age, state) VALUES('CSE','owner',35,'California');
-INSERT INTO users (name, role, age, state) VALUES('David','customer',33,'New York');
-INSERT INTO users (name, role, age, state) VALUES('Floyd','customer',27,'Florida');
-INSERT INTO users (name, role, age, state) VALUES('James','customer',55,'Texas');
-INSERT INTO users (name, role, age, state) VALUES('Ross','customer',24,'Arizona');
-INSERT INTO users (name, role, age, state) VALUES('Tyler','customer',19,'California');
+INSERT INTO users (name, role, age, state) VALUES('CSE','owner',35, 1);
+INSERT INTO users (name, role, age, state) VALUES('David','customer',33, 2);
+INSERT INTO users (name, role, age, state) VALUES('Floyd','customer',27, 3);
+INSERT INTO users (name, role, age, state) VALUES('James','customer',55, 4);
+INSERT INTO users (name, role, age, state) VALUES('Ross','customer',24, 5);
+INSERT INTO users (name, role, age, state) VALUES('Tyler','customer',19, 6);
 SELECT * FROM  users  order by id asc limit 5;
 
 
@@ -69,6 +69,11 @@ CREATE TABLE sales (
 
 SELECT * FROM sales order by id desc;
 
+CREATE TABLE states (
+    id          SERIAL PRIMARY KEY,
+    state       TEXT NOT NULL UNIQUE
+);
+
 
 
 CREATE TABLE carts (
@@ -79,12 +84,12 @@ CREATE TABLE carts (
     price	INTEGER NOT NULL
 );
 
-INSERT INTO carts (uid, pid, quantity, price) VALUES(3, 1 , 2, 1200);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(3, 2 , 1, 480);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(4, 10, 4, 249);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(5, 12, 2, 232);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(5, 9 , 5, 520);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(5, 5 , 3, 488);
-INSERT INTO carts (uid, pid, quantity, price) VALUES(5, 1, 1, 1200);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(3, 1 , 2, 1200);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(3, 2 , 1, 480);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(4, 10, 4, 249);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 12, 2, 232);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 9 , 5, 520);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 5 , 3, 488);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 1, 1, 1200);
 
 SELECT * FROM carts order by id desc;

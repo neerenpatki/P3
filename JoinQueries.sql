@@ -236,3 +236,150 @@ CREATE TABLE customers AS (SELECT id, uname, SUM(sum) FROM cat_user GROUP BY id,
 SELECT * FROM customers ORDER BY sum desc LIMIT 20
 
 SELECT id, uname, SUM(sum) FROM cat_user GROUP BY id, uname ORDER BY sum desc LIMIT 20
+
+SELECT * FROM sales
+
+DROP TABLE users CASCADE;
+DROP TABLE categories CASCADE;
+DROP TABLE products CASCADE;
+DROP TABLE carts CASCADE;
+DROP TABLE sales CASCADE;
+
+CREATE TABLE states (
+    id          SERIAL PRIMARY KEY,
+    state       TEXT NOT NULL UNIQUE
+);
+
+insert into states (state) values ('Alabama');
+insert into states (state) values ('Alaska');
+insert into states (state) values ('Arizona');
+insert into states (state) values ('Arkansas');
+insert into states (state) values ('California');
+insert into states (state) values ('Colorado');
+insert into states (state) values ('Connecticut');
+insert into states (state) values ('Delaware');
+insert into states (state) values ('Florida');
+insert into states (state) values ('Georgia');
+insert into states (state) values ('Hawaii');
+insert into states (state) values ('Idaho');
+insert into states (state) values ('Illinois');
+insert into states (state) values ('Indiana');
+insert into states (state) values ('Iowa');
+insert into states (state) values ('Kansas');
+insert into states (state) values ('Kentucky');
+insert into states (state) values ('Louisiana');
+insert into states (state) values ('Maine');
+insert into states (state) values ('Maryland');
+insert into states (state) values ('Massachusetts');
+insert into states (state) values ('Michigan');
+insert into states (state) values ('Minnesota');
+insert into states (state) values ('Mississippi');
+insert into states (state) values ('Missouri');
+insert into states (state) values ('Montana');
+insert into states (state) values ('Nebraska');
+insert into states (state) values ('Nevada');
+insert into states (state) values ('New Hampshire');
+insert into states (state) values ('New Jersey');
+insert into states (state) values ('New Mexico');
+insert into states (state) values ('New York');
+insert into states (state) values ('North Carolina');
+insert into states (state) values ('North Dakota');
+insert into states (state) values ('Ohio');
+insert into states (state) values ('Oklahoma');
+insert into states (state) values ('Oregon');
+insert into states (state) values ('Pennsylvania');
+insert into states (state) values ('Rhode Island');
+insert into states (state) values ('South Carolina');
+insert into states (state) values ('South Dakota');
+insert into states (state) values ('Tennessee');
+insert into states (state) values ('Texas');
+insert into states (state) values ('Utah');
+insert into states (state) values ('Vermont');
+insert into states (state) values ('Virginia');
+insert into states (state) values ('Washington');
+insert into states (state) values ('West Virginia');
+insert into states (state) values ('Wisconsin');
+insert into states (state) values ('Wyoming');
+
+/**table 1: [entity] users**/
+CREATE TABLE users (
+    id          SERIAL PRIMARY KEY,
+    name        TEXT NOT NULL UNIQUE,
+    role        TEXT NOT NULL,
+    age   	INTEGER NOT NULL,
+    stateID  	INTEGER REFERENCES states (id) ON DELETE CASCADE
+);
+INSERT INTO users (name, role, age, stateID) VALUES('CSE','owner',35, 1);
+INSERT INTO users (name, role, age, stateID) VALUES('David','customer',33, 2);
+INSERT INTO users (name, role, age, stateID) VALUES('Floyd','customer',27, 3);
+INSERT INTO users (name, role, age, stateID) VALUES('James','customer',55, 4);
+INSERT INTO users (name, role, age, stateID) VALUES('Ross','customer',24, 5);
+INSERT INTO users (name, role, age, stateID) VALUES('Tyler','customer',19, 6);
+SELECT * FROM  users  order by id asc limit 5;
+
+
+/**table 2: [entity] category**/
+CREATE TABLE categories (
+    id          SERIAL PRIMARY KEY,
+    name        TEXT NOT NULL UNIQUE,
+    description TEXT
+);
+INSERT INTO categories (name, description) VALUES('Computers','A computer is a general purpose device that can be programmed to carry out a set of arithmetic or logical operations automatically. Since a sequence of operations can be readily changed, the computer can solve more than one kind of problem.');
+INSERT INTO categories (name, description) VALUES('Cell Phones','A mobile phone (also known as a cellular phone, cell phone, and a hand phone) is a phone that can make and receive telephone calls over a radio link while moving around a wide geographic area. It does so by connecting to a cellular network provided by a mobile phone operator, allowing access to the public telephone network.');
+INSERT INTO categories (name, description) VALUES('Cameras','A camera is an optical instrument that records images that can be stored directly, transmitted to another location, or both. These images may be still photographs or moving images such as videos or movies.');
+INSERT INTO categories (name, description) VALUES('Video Games','A video game is an electronic game that involves human interaction with a user interface to generate visual feedback on a video device..');
+SELECT * FROM categories order by id asc;
+
+/**table 3: [entity] product**/
+CREATE TABLE products (
+    id          SERIAL PRIMARY KEY,
+    cid         INTEGER REFERENCES categories (id) ON DELETE CASCADE,
+    name        TEXT NOT NULL,
+    SKU         TEXT NOT NULL UNIQUE,
+    price       INTEGER NOT NULL
+);
+INSERT INTO products (cid, name, SKU, price) VALUES(1, 'Apple MacBook',		'103001',	1200); /**1**/
+INSERT INTO products (cid, name, SKU, price) VALUES(1, 'HP Laptop',    		'106044',	480);
+INSERT INTO products (cid, name, SKU, price) VALUES(1, 'Dell Laptop',  		'109023',	399);/**3**/
+INSERT INTO products (cid, name, SKU, price) VALUES(2, 'Iphone 5s',        	'200101',	709);
+INSERT INTO products (cid, name, SKU, price) VALUES(2, 'Samsung Galaxy S4',	'208809',	488);/**5**/
+INSERT INTO products (cid, name, SKU, price) VALUES(2, 'LG Optimus g',    	 '209937',	375);
+INSERT INTO products (cid, name, SKU, price) VALUES(3, 'Sony DSC-RX100M',	'301211',	689);/**7**/
+INSERT INTO products (cid, name, SKU, price) VALUES(3, 'Canon EOS Rebel T3', 	 '304545',	449);
+INSERT INTO products (cid, name, SKU, price) VALUES(3, 'Nikon D3100',  		'308898',	520);
+INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Xbox 360',  		'405065',	249);/**10**/
+INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Nintendo Wii U ', 	 '407033',	430);
+INSERT INTO products (cid, name, SKU, price) VALUES(4, 'Nintendo Wii',  	'408076',	232);
+SELECT * FROM products order by id asc limit 10;
+
+
+
+/**table 4: [relation] carts**/
+CREATE TABLE sales (
+    id          SERIAL PRIMARY KEY,
+    uid         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    pid         INTEGER REFERENCES products (id) ON DELETE CASCADE,
+    quantity    INTEGER NOT NULL,
+    price	INTEGER NOT NULL
+);
+
+SELECT * FROM sales order by id desc;
+
+CREATE TABLE carts (
+    id          SERIAL PRIMARY KEY,
+    uid         INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    pid         INTEGER REFERENCES products (id) ON DELETE CASCADE,
+    quantity    INTEGER NOT NULL,
+    price	INTEGER NOT NULL
+);
+
+INSERT INTO sales (uid, pid, quantity, price) VALUES(3, 1 , 2, 1200);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(3, 2 , 1, 480);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(4, 10, 4, 249);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 12, 2, 232);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 9 , 5, 520);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 5 , 3, 488);
+INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 1, 1, 1200);
+
+
+

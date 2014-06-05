@@ -19,10 +19,10 @@ public class DataGenerator
 	HashMap<Integer, Integer> hm=new HashMap<Integer, Integer>();
 	public static void main(String[] args) throws Exception
 	{
-		int Num_users		=	10000;
+		int Num_users		=	1000;
 		int Num_categories	=	20;
 		int Num_products	=	1000;
-		int Num_sales		=	100000000;
+		int Num_sales		=	10000;
 		DataGenerator dg=new DataGenerator();
 		dg.createData(Num_users,Num_categories,Num_products,Num_sales);
 		System.out.println("-------------finish-----------");
