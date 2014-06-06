@@ -91,7 +91,6 @@ try
 		"' GROUP BY name ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
-		out.println("here1");
 	}
 	if(!("All").equals(state) && !("0").equals(category))//1,1,0
 	{
@@ -114,15 +113,11 @@ try
 
 	while(rs.next())
 	{
-		//u_id=rs.getInt(1);   
 		u_name=rs.getString(1);
 		u_tot=rs.getInt(2);
 		customer_total.put(u_name, u_tot);
-		//u_list.add(u_id);
 		u_name_list.add(u_name);
 		users.remove(u_name);
-		//customer_ID_amount.put(u_id, 0);
-		
 	}
 	int k = 0;
 	for (int i = u_name_list.size(); i < show_num_row; i++) {
@@ -139,46 +134,12 @@ try
 		prod_name = rs.getString(1);
 		prod_tot = rs.getInt(2);
 		product_total.put(prod_name, prod_tot);
-		//p_list.add(rs.getInt(1)); // Store the pid of the top 10 products
 		p_name_list.add(prod_name); // Store the names of the top 10 products
-		/*p_id=rs.getInt(1);   
-		p_name=rs.getString(2);
-		p_list.add(p_id);
-	    p_name_list.add(p_name);
-		product_ID_amount.put(p_id,0);*/
-		
-	}
-	
-	
+	}	
 	//temporary table
 	conn.setAutoCommit(false);
-	//stmt2.execute("CREATE TEMP TABLE p_t (id int, name text)ON COMMIT DELETE ROWS;");
-	//stmt2.execute("CREATE TEMP TABLE u_t (id int, name text)ON COMMIT DELETE ROWS;");
-	//customer tempory table
-	//stmt2.execute(SQL_ut);
-	//product tempory table
-	//stmt2.execute(SQL_pt);
-
-	
-	//count the total tuples in  usres and products after filterings
-	/*int maxUser=0;
-	//rs=stmt.executeQuery(SQL_row);//if only customer can buy products, then limit to only customers
-	if(rs.next())
-	{
-		maxUser=rs.getInt(1);
-	}
-	int maxProduct=0;
-	//rs=stmt.executeQuery(SQL_col);//if only customer can buy products, then limit to only customers
-	if(rs.next())
-	{
-		maxProduct=rs.getInt(1);
-	}*/
-	
 %>	
 <%	
-
-	
-	
 	
 //	out.println(SQL_amount_row+"<br>"+SQL_amount_col+"<br>"+SQL_amount_cell+"<BR>");
 	
@@ -188,25 +149,7 @@ try
 		p_name = rs.getString(2);
 		u_name = rs.getString(5);
 		customer_cells.put(p_name+"_"+u_name, rs.getInt(7));
-		/*u_id=rs.getInt(1);
-		u_amount_price=rs.getInt(2);
-		if(customer_ID_amount.get(u_id)!=null)
-		{
-			customer_ID_amount.put(u_id,u_amount_price);
-		}*/
    }
-	/*rs=stmt.executeQuery(SQL_amount_col);
-	while(rs.next())
-	{
-		p_id=rs.getInt(1);   
-		p_amount_price=rs.getInt(2);
-		if(product_ID_amount.get(p_id)!=null)
-		{
-			product_ID_amount.put(p_id,p_amount_price);
-		}
-	}*/
-
-   
     int i=0,j=0;
 	HashMap<String, String> pos_idPair=new HashMap<String, String>();
 	HashMap<String, Integer> idPair_amount=new HashMap<String, Integer>();	
@@ -215,15 +158,14 @@ try
 %>
 	<table align="center" width="100%" border="1">
 		<tr align="center">
-			<td width="12%"><table align="center" width="100%" border="0"><tr align="center"><td><strong><font size="+2" color="#FF00FF">CUSTOMER</font></strong></td></tr></table></td>
-			<td width="88%">
+			<td width="17%"><table align="center" width="100%" border="0"><tr align="center"><td><strong><font size="+2" color="#FF00FF">CUSTOMER</font></strong></td></tr></table></td>
+			<td width="83%">
 				<table align="center" width="100%" border="1">
 					<tr align="center">
 <%	
 	int amount_show=0;
 	for(i=0;i<p_name_list.size();i++)
 	{
-		//p_id			=   p_list.get(i);
 		p_name			=	p_name_list.get(i);
 		if(product_total.get(p_name)!=null)
 		{
@@ -249,45 +191,33 @@ try
 		</tr>
 	</table>
 <table align="center" width="100%" border="1">
-<tr><td width="12%">
+<tr><td width="17%">
 	<table align="center" width="100%" border="1">
 	<%	
 		for(i=0;i<u_name_list.size();i++)
 		{
-			//u_id			=	u_list.get(i);
 			u_name			=	u_name_list.get(i);
 			if(customer_total.get(u_name)!=null)
 			{
 				amount_show=(Integer)customer_total.get(u_name);
 				if(amount_show!=0)
 				{
-					out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+u_name+"(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td></tr>");
+					out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+u_name+"(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td></tr>");
 				}
 				else
 				{
-					out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+u_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
+					out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+u_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
 				}	
 			}
 			else
 			{
-				out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+u_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
+				out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+u_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
 			}
-			/*for(j=0;j<p_list.size();j++)
-			{
-				p_id	=   p_list.get(j);
-				pos_idPair.put(i+"_"+j, u_id+"_"+p_id);
-				idPair_amount.put(u_id+"_"+p_id,0);
-			}*/
 		}
 	%>
 	</table>
 </td>
 <td width="88%">	
-	<%	
-		//SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
-		 //rs=stmt.executeQuery(SQL_amount_cell);
-		
-	%>	 
 	<table align="center" width="100%" border="1">
 	<%	
 		String idPair="";
