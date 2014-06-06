@@ -58,18 +58,21 @@ try
 	String url="jdbc:postgresql://127.0.0.1:5432/P1";
 	String user="postgres";
 	String password="880210";
+
 	conn =DriverManager.getConnection(url, user, password);
 	stmt =conn.createStatement();
 	stmt2 =conn.createStatement();
-	
+
 	
 	if(("All").equals(state) && ("0").equals(category) && ("0").equals(age))//0,0,0
 	{
-		SQL_1="select state from users group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
+		" group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u "+
+		"left outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users";
+		SQL_row="select count(distinct stateID) from users";
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid;";
@@ -77,11 +80,13 @@ try
 	
 	if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
 	{
-		SQL_1="select state from users  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
+		" group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products where cid="+category+" order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u "+
+		"left outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users";
+		SQL_row="select count(distinct stateID) from users";
 		SQL_col="select count(*) from products where cid="+category+"";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s  where s.pid=p.id group by s.pid;";
@@ -90,31 +95,38 @@ try
 	{
 		String minAge=age.split("_")[0];
 		String maxAge=age.split("_")[1];
-		SQL_1="select state from users where age>"+minAge+" and age<="+maxAge+"  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id and age>"+minAge+
+		" and age<="+maxAge+" group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u left "+
+		"outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where  age>"+minAge+" and age<="+maxAge;
+		SQL_row="select count(distinct stateID) from users where  age>"+minAge+" and age<="+maxAge;
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and  u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
 	}
 	if(!("All").equals(state) && ("0").equals(category) && ("0").equals(age))//1,0,0
 	{
-		SQL_1="select state from users where state='"+state+"'  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where s.state='"+state+"' and u.stateID = s.id "+"group by s.id order by state asc limit "+show_num_row;
+		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u left "+
+		"outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where state='"+state+"'";
+		SQL_row="select count(distinct stateID) from users u, states s where s.state='"+state+"' and "+
+		"u.stateID = s.id";
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
+		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u, states st"+
+		" where s.pid=p.id and s.uid=u.id and u.stateID = st.id and st.state ='"+state+
+		"' group by s.pid;";
 	}
 	if(("All").equals(state) && !("0").equals(category) && !("0").equals(age))//0,1,1
 	{
 		String minAge=age.split("_")[0];
 		String maxAge=age.split("_")[1];
-		SQL_1="select state from users where age>"+minAge+" and age<="+maxAge+"  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
+		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id and age>"+minAge+
+		" and age<="+maxAge+" group by state order by state asc offset limit "+show_num_row;
 		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
 		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
@@ -125,11 +137,13 @@ try
 	}
 	if(!("All").equals(state) && !("0").equals(category) && ("0").equals(age))//1,1,0
 	{
-		SQL_1="select state from users where state='"+state+"'  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
+		SQL_1="select s.id, s.state from users u, states s where s.state='"+state+
+		"' and u.stateID = s.id group by state order by state asc limit "+show_num_row;
 		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
 		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where state='"+state+"'";
+		SQL_row="select count(distinct stateID) from users u, states s where u.stateID = s.id and "+
+		"s.state='"+state+"'";
 		SQL_col="select count(*) from products where cid="+category+"";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' group by s.pid;";
@@ -139,11 +153,15 @@ try
 	{
 		String minAge=age.split("_")[0];
 		String maxAge=age.split("_")[1];
-		SQL_1="select state from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+"  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where s.state='"+state
+		+"' and u.stateID = s.id and age>"+minAge+" and age<="+maxAge+
+		"group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+
+		") as u left outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge;
+		SQL_row="select count(distinct stateID) from users u, states s where s.state='"+state+
+		"' and age>"+minAge+" and age<="+maxAge+" and u.stateID = s.id";
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
@@ -152,11 +170,16 @@ try
 	{
 		String minAge=age.split("_")[0];
 		String maxAge=age.split("_")[1];
-		SQL_1="select state from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+"  group by state order by state asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
+		SQL_1="select s.id, s.state from users u, states s where s.state='"+state
+		+"' and u.stateID = s.id and age>"+minAge+" and age<="+maxAge+
+		"group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products where cid="+category+" order by name asc limit "+
+		show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+
+		") as u left outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge;
+		SQL_row="select count(distinct stateID) from users u, states s where s.state='"+state+
+		"' and age>"+minAge+" and age<="+maxAge+" and u.stateID = s.id";
 		SQL_col="select count(*) from products where cid="+category+"";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
@@ -167,7 +190,7 @@ try
 	rs=stmt.executeQuery(SQL_1);
 	while(rs.next())
 	{
-		s_name=rs.getString(1);
+		s_name=rs.getString(2);
 		s_name_list.add(s_name);
 		state_name_amount.put(s_name, 0);
 		
@@ -353,44 +376,6 @@ try
 	
 </td>
 </tr>
-</table>	
-	<table width="100%">
-	<tr><td align="left">
-		<%
-			if(maxState>(pos_row+show_num_row-1))
-			{
-		%>
-		<input type="button" value="Next 20 States" onClick="doNext20()">
-		<%
-			}
-			else
-			{
-		%>
-		<input type="button" value="Next 20 States" disabled="disabled">
-		<%
-			}
-			if(maxProduct>pos_col+show_num_col)
-			{
-		%>
-		<input type="button" value="Next 10" onClick="doNext10()">
-		<%
-			}
-			else
-			{
-		%>
-		<input type="button" value="Next 10" disabled="disabled">
-		<%
-			}
-		%>
-		</td>
-		<td align="right">
-			<%
-				out.println("Row Range:["+pos_row+","+(pos_row+show_num_row)+"]<br>");
-				out.println("Column Range:["+pos_col+","+(pos_col+show_num_col)+"]");
-			%>
-		</td>
-		</tr>
-	</table>
 <%
     conn.commit();
 	conn.setAutoCommit(true);
@@ -398,6 +383,7 @@ try
 }
 catch(Exception e)
 {
+  out.println(e);
   out.println("Fail! Please connect your database first.");
 }
 %>	
