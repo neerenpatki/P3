@@ -243,13 +243,26 @@ SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
 SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
 
 -- State total for specific category
-SELECT state, SUM(sum) FROM prod_st WHERE cid = category GROUP BY state ORDER BY sum desc LIMIT 20
+SELECT state, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- State total for specific state and category
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 2 GROUP BY state ORDER BY sum desc
 
 -- Product totals (top 10 products)
 SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10
 
 -- Product total for category filter
 SELECT name, SUM(sum) FROM prod_st WHERE cid = 1 GROUP BY name ORDER BY sum desc LIMIT 10
+
+-- Product totals for specific category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state and category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 1 GROUP BY name ORDER BY sum desc LIMIT 20
+
 
 -- State cells for top 20 states
 SELECT * FROM prod_st WHERE state IN (SELECT state 
@@ -509,3 +522,9 @@ SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid;";
+
+
+
+SELECT * FROM users;
+SELECT * FROM states;
+SELECT u.id, u.name, s.state from users u, states s where u.stateID = s.id
