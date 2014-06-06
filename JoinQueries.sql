@@ -203,8 +203,9 @@ DROP TABLE prodTot;
 DROP TABLE cat_user;
 DROP TABLE customers;
 DROP TABLE st;
+DROP TABLE prod_st;
 
---product,user (precomputed)
+--product,user (precomputed) KEEP
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
@@ -212,13 +213,34 @@ ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE u.name is 
 
 SELECT * FROM prod_user
 
---product,state (precomputed)
+--product,state (precomputed) KEEP
 DROP TABLE prod_st
 CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE state is not null GROUP BY p.id, state )
 SELECT * FROM prod_st
+
+-- State totals (top 20 states)
+SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- State total for specific state
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
+
+-- State total for specific category
+SELECT state, SUM(sum) FROM prod_st WHERE cid = category GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- Product totals (top 10 products)
+SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT 10
+
+-- State cells for top 20 states
+SELECT * FROM prod_st WHERE state IN (SELECT state 
+FROM (SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20) as u)
+
+
+
+
+
 
 
 

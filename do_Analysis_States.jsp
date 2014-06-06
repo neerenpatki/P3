@@ -13,6 +13,9 @@ ArrayList<String> p_name_list=new ArrayList<String>();//product ID, 10
 ArrayList<String> s_name_list=new ArrayList<String>();//customer ID,20
 HashMap<Integer, Integer> product_ID_amount	=	new HashMap<Integer, Integer>();
 HashMap<String, Integer> state_name_amount=	new HashMap<String, Integer>();
+HashMap<String, Integer> state_total = new HashMap<String, Integer>();
+HashMap<String, Integer> product_total = new HashMap<String, Integer>();
+HashMap<String, Integer> state_cells = new HashMap<String, Integer>();
 %>
 <%
 	String  state=null, category=null, age=null;
@@ -48,6 +51,8 @@ String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=n
 String  	SQL_amount_row=null,SQL_amount_col=null,SQL_amount_cell=null;
 int 		p_id=0,u_id=0;
 String		p_name=null,s_name=null;
+String 		st_name = null, prod_name = null;
+int 		st_tot = 0, prod_tot = 0;
 int 		p_amount_price=0,s_amount_price=0;
 
 int show_num_row=20, show_num_col=10;
@@ -64,11 +69,13 @@ try
 	stmt2 =conn.createStatement();
 
 	
-	if(("All").equals(state) && ("0").equals(category) && ("0").equals(age))//0,0,0
+	if(("All").equals(state) && ("0").equals(category))//0,0
 	{
-		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
-		" group by s.id order by s.state asc limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_1="SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT "+show_num_row;
+		/*SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
+		" group by s.id order by s.state asc";*/
+		SQL_2 = "SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT "+show_num_col;
+		//SQL_2="select id,name from products order by name asc limit "+show_num_col;
 		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u "+
 		"left outer join users u2 on u2.stateID = u.id order by state";
 		SQL_pt="insert into ps_t (id, name) "+SQL_2;
@@ -76,9 +83,10 @@ try
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_cells="SELECT * FROM prod_st WHERE state IN (SELECT state FROM ("+SQL_1+") as u)"; // Get all of the information for the cells
 	}
 	
-	if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
+	if(("All").equals(state) && !("0").equals(category))//0,1
 	{
 		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
 		" group by s.id order by s.state asc limit "+show_num_row;
@@ -91,22 +99,7 @@ try
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s  where s.pid=p.id group by s.pid;";
 	}
-	if(("All").equals(state) && ("0").equals(category) && !("0").equals(age))//0,0,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id and age>"+minAge+
-		" and age<="+maxAge+" group by s.id order by s.state asc limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u left "+
-		"outer join users u2 on u2.stateID = u.id order by state";
-		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct stateID) from users where  age>"+minAge+" and age<="+maxAge;
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and  u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
-	if(!("All").equals(state) && ("0").equals(category) && ("0").equals(age))//1,0,0
+	if(!("All").equals(state) && ("0").equals(category))//1,0
 	{
 		SQL_1="select s.id, s.state from users u, states s where s.state='"+state+"' and u.stateID = s.id "+"group by s.id order by state asc limit "+show_num_row;
 		SQL_2="select id,name from products order by name asc limit "+show_num_col;
@@ -121,21 +114,7 @@ try
 		" where s.pid=p.id and s.uid=u.id and u.stateID = st.id and st.state ='"+state+
 		"' group by s.pid;";
 	}
-	if(("All").equals(state) && !("0").equals(category) && !("0").equals(age))//0,1,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id and age>"+minAge+
-		" and age<="+maxAge+" group by state order by state asc offset limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, u.state from ("+SQL_1+") as u left outer join users u2 on u2.state=u.state order by u.state";
-		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct state) from users where age>"+minAge+" and age<="+maxAge;
-		SQL_col="select count(*) from products where cid="+category+"";
-		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
-	if(!("All").equals(state) && !("0").equals(category) && ("0").equals(age))//1,1,0
+	if(!("All").equals(state) && !("0").equals(category))//1,1
 	{
 		SQL_1="select s.id, s.state from users u, states s where s.state='"+state+
 		"' and u.stateID = s.id group by state order by state asc limit "+show_num_row;
@@ -149,76 +128,50 @@ try
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' group by s.pid;";
 
 	}
-	if(!("All").equals(state) && ("0").equals(category) && !("0").equals(age))//1,0,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select s.id, s.state from users u, states s where s.state='"+state
-		+"' and u.stateID = s.id and age>"+minAge+" and age<="+maxAge+
-		"group by s.id order by s.state asc limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc limit "+show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+
-		") as u left outer join users u2 on u2.stateID = u.id order by state";
-		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct stateID) from users u, states s where s.state='"+state+
-		"' and age>"+minAge+" and age<="+maxAge+" and u.stateID = s.id";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
-	if(!("All").equals(state) && !("0").equals(category) && !("0").equals(age))//1,1,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select s.id, s.state from users u, states s where s.state='"+state
-		+"' and u.stateID = s.id and age>"+minAge+" and age<="+maxAge+
-		"group by s.id order by s.state asc limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc limit "+
-		show_num_col;
-		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+
-		") as u left outer join users u2 on u2.stateID = u.id order by state";
-		SQL_pt="insert into ps_t (id, name) "+SQL_2;
-		SQL_row="select count(distinct stateID) from users u, states s where s.state='"+state+
-		"' and age>"+minAge+" and age<="+maxAge+" and u.stateID = s.id";
-		SQL_col="select count(*) from products where cid="+category+"";
-		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
 	
 
-	//customer name
+	//top 20 states and totals
 	rs=stmt.executeQuery(SQL_1);
 	while(rs.next())
 	{
-		s_name=rs.getString(2);
+		st_name = rs.getString(1);
+		st_tot = rs.getString(2);
+		state_total.put(st_name, st_tot);
+		/*s_name=rs.getString(2);
 		s_name_list.add(s_name);
-		state_name_amount.put(s_name, 0);
+		state_name_amount.put(s_name, 0);*/
 		
 	}
 //	out.println(SQL_1+"<br>"+SQL_2+"<br>"+SQL_pt+"<BR>"+SQL_ut+"<br>"+SQL_row+"<BR>"+SQL_col+"<br>");
 	//product name
+	//top 10 products and totals
 	rs=stmt.executeQuery(SQL_2);
 	while(rs.next())
 	{
-		p_id=rs.getInt(1);   
+		prod_name = rs.getString(2);
+		prod_tot = rs.getInt(3);
+		product_total.put(prod_name, prod_tot);
+		p_list.add(rs.getInt(1)); // Store the pid of the top 10 products
+		p_name_list.add(prod_name); // Store the names of the top 10 products
+		/*p_id=rs.getInt(1);   
 		p_name=rs.getString(2);
 		p_list.add(p_id);
 	    p_name_list.add(p_name);
-		product_ID_amount.put(p_id,0);
+		product_ID_amount.put(p_id,0);*/
 		
 	}
 	conn.setAutoCommit(false);
-    stmt2.execute("CREATE TEMP TABLE us_t (id int, state text)ON COMMIT DELETE ROWS;");
-	stmt2.execute("CREATE TEMP TABLE ps_t (id int, name text)ON COMMIT DELETE ROWS;");
+    //stmt2.execute("CREATE TEMP TABLE us_t (id int, state text)ON COMMIT DELETE ROWS;");
+	//stmt2.execute("CREATE TEMP TABLE ps_t (id int, name text)ON COMMIT DELETE ROWS;");
 	//temporary table
 	//customer tempory table
-	stmt2.execute(SQL_ut);
+	//stmt2.execute(SQL_ut);
 	//product tempory table
-	stmt2.execute(SQL_pt);
+	//stmt2.execute(SQL_pt);
 
 	
 	//count the total tuples in  usres and products after filterings
-	int maxState=0;
+	/*int maxState=0;
 	rs=stmt.executeQuery(SQL_row);//if only customer can buy products, then limit to only customers
 	if(rs.next())
 	{
@@ -229,7 +182,7 @@ try
 	if(rs.next())
 	{
 		maxProduct=rs.getInt(1);
-	}
+	}*/
 	
 %>	
 <%	
@@ -239,7 +192,12 @@ try
 	
 //	out.println(SQL_amount_row+"<br>"+SQL_amount_col+"<br>"+SQL_amount_cell+"<BR>");
 	
-	rs=stmt.executeQuery(SQL_amount_row);
+	// Store the cells purchases
+	rs=stmt.executeQuery(SQL_cells);
+	while (rs.next()) {
+		state_cells.put(rs.getString(2), )
+	}
+	/*rs=stmt.executeQuery(SQL_amount_row);
 	while(rs.next())
 	{
 		s_name=rs.getString(1);
@@ -258,7 +216,7 @@ try
 		{
 			product_ID_amount.put(p_id,p_amount_price);
 		}
-	}
+	}*/
 
    
     int i=0,j=0;
