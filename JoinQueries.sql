@@ -333,6 +333,7 @@ INSERT INTO users (name, role, age, stateID) VALUES('Floyd','customer',27, 3);
 INSERT INTO users (name, role, age, stateID) VALUES('James','customer',55, 4);
 INSERT INTO users (name, role, age, stateID) VALUES('Ross','customer',24, 5);
 INSERT INTO users (name, role, age, stateID) VALUES('Tyler','customer',19, 6);
+INSERT INTO users (name, role, age, stateID) VALUES('Neeren', 'customer',21,10);
 SELECT * FROM  users  order by id asc limit 5;
 
 
@@ -400,4 +401,57 @@ INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 5 , 3, 488);
 INSERT INTO sales (uid, pid, quantity, price) VALUES(5, 1, 1, 1200);
 
 
+SELECT s.id, state FROM users u, states s WHERE u.stateID = s.id GROUP BY s.id ORDER BY state asc
 
+insert into us_t (id, state) select u2.id, state from (
+SELECT s.id, state FROM users u, states s WHERE u.stateID = s.id GROUP BY s.id ORDER BY state asc limit 20) 
+as u left outer join users u2 on u2.stateID = u.id order by state
+
+select s.state from users u, states s where u.stateID = s.id and age>12 and age<= 45 group by s.state order by s.state asc limit 20
+
+select u2.id, state from (
+select s.id, s.state from users u, states s where u.stateID = s.id and age>12 and age<= 45 group by s.id, s.state order by s.state asc limit 20
+) as u left outer join users u2 on u2.stateID = u.id order by state
+
+select s.state from users u, states s where s.state='Alabama' and u.stateID = s.id group by s.id order by state asc limit 20
+
+select u2.id, u.state from (
+select u.id, s.state from users u, states s where s.state='Alabama' and u.stateID = s.id group by u.id,s.state order by state asc limit 20
+) as u left outer join users u2 on u2.stateID=u.id order by u.state
+
+select s.id, s.state from users u, states s where s.state='Alabama' and u.stateID = s.id group by s.id order by s.state asc limit 20
+
+
+
+SELECT s.id, state FROM users u, states s WHERE u.stateID = s.id GROUP BY s.id ORDER BY state asc
+select id,name from products order by name asc limit 20
+insert into us_t (id, state) select u2.id, state from (
+SELECT s.id, state FROM users u, states s WHERE u.stateID = s.id GROUP BY s.id ORDER BY state asc
+) as u left outer join users u2 on u2.stateID = u.id order by state
+
+select count(distinct stateID) from users
+
+CREATE TABLE us_t (id int, state text)
+CREATE TABLE ps_t (id int, name text)
+
+
+select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state
+
+select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid
+
+insert into ps_t (id, name) select id,name from products order by name asc limit 20
+select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid
+
+select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u, states st
+where s.pid=p.id and s.uid=u.id and u.stateID = st.id and st.state ='Arkansas'  group by s.pid;
+
+SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
+		" group by s.id order by s.state asc limit "+show_num_row;
+		SQL_2="select id,name from products order by name asc limit "+show_num_col;
+		SQL_ut="insert into us_t (id, state) select u2.id, state from ("+SQL_1+") as u "+
+		"left outer join users u2 on u2.stateID = u.id order by state";
+		SQL_pt="insert into ps_t (id, name) "+SQL_2;
+		SQL_row="select count(distinct stateID) from users";
+		SQL_col="select count(*) from products";
+		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
+		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid;";
