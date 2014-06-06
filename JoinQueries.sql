@@ -202,6 +202,7 @@ DROP TABLE prod_user
 DROP TABLE prodTot
 DROP TABLE cat_user
 DROP TABLE customers
+DROP TABLE st
 
 --product,user (precomputed)
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
@@ -240,14 +241,14 @@ SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
 CREATE TABLE customers AS (SELECT id, uname, state, SUM(sum) FROM cat_user GROUP BY id, uname, state)
 
 
---product,sale (precomputed)
+--product,state (precomputed)
 DROP TABLE prod_st
 CREATE TABLE prod_st AS (SELECT name, state, sum, uname FROM prod_user GROUP BY name, state,sum,uname)
 SELECT * FROM prod_st
 
 --st (precomputed)
 DROP TABLE st
-CREATE TABLE st AS (SELECT state FROM prod_st)
+CREATE TABLE st AS (SELECT state, SUM(sum) FROM prod_st where state is not null group by state)
 SELECT * FROM st
 
 -- top 20 users
