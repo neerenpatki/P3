@@ -47,7 +47,7 @@ HashMap<String, Integer> state_cells = new HashMap<String, Integer>();
 Connection	conn=null;
 Statement 	stmt,stmt2;
 ResultSet 	rs=null;
-String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=null;
+String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=null, SQL_cells=null;
 String  	SQL_amount_row=null,SQL_amount_col=null,SQL_amount_cell=null;
 int 		p_id=0,u_id=0;
 String		p_name=null,s_name=null;
@@ -86,7 +86,7 @@ try
 		SQL_cells="SELECT * FROM prod_st WHERE state IN (SELECT state FROM ("+SQL_1+") as u)"; // Get all of the information for the cells
 	}
 	
-	if(("All").equals(state) && !("0").equals(category))//0,1
+	/*if(("All").equals(state) && !("0").equals(category))//0,1
 	{
 		SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
 		" group by s.id order by s.state asc limit "+show_num_row;
@@ -127,7 +127,7 @@ try
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' group by s.pid;";
 
-	}
+	}*/
 	
 
 	//top 20 states and totals
@@ -135,8 +135,9 @@ try
 	while(rs.next())
 	{
 		st_name = rs.getString(1);
-		st_tot = rs.getString(2);
+		st_tot = rs.getInt(2);
 		state_total.put(st_name, st_tot);
+		s_name_list.add(st_name);
 		/*s_name=rs.getString(2);
 		s_name_list.add(s_name);
 		state_name_amount.put(s_name, 0);*/
@@ -195,7 +196,8 @@ try
 	// Store the cells purchases
 	rs=stmt.executeQuery(SQL_cells);
 	while (rs.next()) {
-		state_cells.put(rs.getString(2), )
+		// Store the key as prodName_state
+		state_cells.put(rs.getString(2)+"_"+rs.getString(4), rs.getInt(5));
 	}
 	/*rs=stmt.executeQuery(SQL_amount_row);
 	while(rs.next())
@@ -237,9 +239,9 @@ try
 	{
 		p_id			=   p_list.get(i);
 		p_name			=	p_name_list.get(i);
-		if(product_ID_amount.get(p_id)!=null)
+		if (product_total.get(p_name) != null) 
 		{
-			amount_show=(Integer)product_ID_amount.get(p_id);
+			amount_show=(Integer)product_total.get(p_name);
 			if(amount_show!=0)
 			{
 				out.print("<td width='10%'><strong>"+p_name+"<br>(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td>");
@@ -267,9 +269,9 @@ try
 		for(i=0;i<s_name_list.size();i++)
 		{
 			s_name			=	s_name_list.get(i);
-			if(state_name_amount.get(s_name)!=null)
+			if (state_total.get(s_name) != null)
 			{
-				amount_show=(Integer)state_name_amount.get(s_name);
+				amount_show = (Integer)state_total.get(s_name);
 				if(amount_show!=0)
 				{
 					out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+s_name+"(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td></tr>");
@@ -283,19 +285,19 @@ try
 			{
 				out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+s_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
 			}
-			for(j=0;j<p_list.size();j++)
+			/*for(j=0;j<p_list.size();j++)
 			{
 				p_id	=   p_list.get(j);
 				pos_idPair.put(i+"_"+j, s_name+"_"+p_id);
 				idPair_amount.put(s_name+"_"+p_id,0);
-			}
+			}*/ 
 		}
 	%>
 	</table>
 </td>
 <td width="88%">	
 	<%	
-
+		
 		SQL_amount_cell="select u.state, s.pid, sum(s.quantity*s.price) from us_t u,ps_t p, sales s where s.uid=u.id and s.pid=p.id group by u.state, s.pid;";
 		 rs=stmt.executeQuery(SQL_amount_cell);
 		 while(rs.next())
