@@ -208,13 +208,16 @@ DROP TABLE st;
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
-ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) GROUP BY p.id, u.id, state)
+ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE u.name is not null GROUP BY p.id, u.id, state)
 
 SELECT * FROM prod_user
 
 --product,state (precomputed)
 DROP TABLE prod_st
-CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM() )
+CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
+FROM products p LEFT OUTER JOIN categories c 
+ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
+ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE state is not null GROUP BY p.id, state )
 SELECT * FROM prod_st
 
 
