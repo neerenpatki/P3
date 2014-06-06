@@ -124,11 +124,9 @@ try
 		//customer_ID_amount.put(u_id, 0);
 		
 	}
-	out.println(users.size() + " "+ u_name_list.size() + " " + show_num_row);
 	int k = 0;
 	for (int i = u_name_list.size(); i < show_num_row; i++) {
 		if (k < users.size()) {
-			out.println(k);
 			u_name_list.add(users.get(k));
 			k++;
 		}
