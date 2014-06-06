@@ -85,8 +85,7 @@ try
 	if(!("All").equals(state) && ("0").equals(category))//1,0
 	{
 		SQL_1="SELECT state, SUM(sum) FROM prod_st WHERE state = '"+state+"' GROUP BY state";
-		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state = '"+state+
-		"' GROUP BY name ORDER BY sum desc LIMIT "+show_num_col;
+		SQL_2="SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT "+show_num_col;
 		SQL_cells="SELECT * FROM prod_st WHERE state IN (SELECT state FROM ("+SQL_1+") as u)"; // Get all of the information for the cells
 
 	}
@@ -94,7 +93,7 @@ try
 	{
 		SQL_1="SELECT state, SUM(sum) FROM prod_st WHERE state = '"+state+"' AND cid ="+category+
 		" GROUP BY state ORDER BY sum desc";
-		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state = '"+state+"' AND cid ="+category+
+		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE cid ="+category+
 		" GROUP BY name ORDER BY sum desc LIMIT "+show_num_col;
 		SQL_cells="SELECT * FROM prod_st WHERE state IN (SELECT state FROM ("+SQL_1+") as u)"; // Get all of the information for the cells
 	}
