@@ -198,12 +198,14 @@ CREATE INDEX users_state ON users(state)
 CREATE INDEX users_name ON users(name)
 CREATE INDEX sales_uid ON sales(uid)
 
-DROP TABLE prod_user;
 DROP TABLE prodTot;
 DROP TABLE cat_user;
 DROP TABLE customers;
 DROP TABLE st;
 
+
+DROP TABLE prod_user;
+DROP TABLE prod_st
 --product,user (precomputed)
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
@@ -213,14 +215,20 @@ ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE u.name is 
 SELECT * FROM prod_user
 
 --product,state (precomputed)
-DROP TABLE prod_st
+
 CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE state is not null GROUP BY p.id, state )
 SELECT * FROM prod_st
 
+--total for customers
+SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
+--filters
+
+--total for states
+--filters
 
 --all
 SELECT SUM(sum) FROM prod_user

@@ -67,7 +67,7 @@ try
 	if(("All").equals(state) && ("0").equals(category) && ("0").equals(age))//0,0,0
 	{
 		//SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_1="SELECT id, uname FROM prod_user ORDER BY sum desc LIMIT 20";
+		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
 		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
 		SQL_ut="insert into u_t (id, name) "+SQL_1;
 		SQL_pt="insert into p_t (id, name) "+SQL_2;
@@ -79,8 +79,8 @@ try
 	
 	if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
 	{
-		//SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_1="SELECT id, uname FROM customers ORDER BY sum desc LIMIT 20";
+		SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
+		//SQL_1="SELECT id, uname FROM customers ORDER BY sum desc LIMIT 20";
 		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
 		SQL_ut="insert into u_t (id, name) "+SQL_1;
 		SQL_pt="insert into p_t (id, name) "+SQL_2;
