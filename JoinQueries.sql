@@ -198,11 +198,11 @@ CREATE INDEX users_state ON users(state)
 CREATE INDEX users_name ON users(name)
 CREATE INDEX sales_uid ON sales(uid)
 
-DROP TABLE prod_user
-DROP TABLE prodTot
-DROP TABLE cat_user
-DROP TABLE customers
-DROP TABLE st
+DROP TABLE prod_user;
+DROP TABLE prodTot;
+DROP TABLE cat_user;
+DROP TABLE customers;
+DROP TABLE st;
 
 --product,user (precomputed)
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
@@ -211,6 +211,13 @@ ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN user
 ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) GROUP BY p.id, u.id, state)
 
 SELECT * FROM prod_user
+
+--product,state (precomputed)
+DROP TABLE prod_st
+CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM() )
+SELECT * FROM prod_st
+
+
 
 --all
 SELECT SUM(sum) FROM prod_user
@@ -238,13 +245,9 @@ SELECT SUM(sum) FROM cat_user
 SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
 
 --user (precomputed)
-CREATE TABLE customers AS (SELECT id, uname, state, SUM(sum) FROM cat_user GROUP BY id, uname, state)
+CREATE TABLE customers AS (SELECT id, uname, state, SUM(sum) FROM cat_user where id is not null GROUP BY id, uname, state)
 
 
---product,state (precomputed)
-DROP TABLE prod_st
-CREATE TABLE prod_st AS (SELECT name, state, sum, uname FROM prod_user GROUP BY name, state,sum,uname)
-SELECT * FROM prod_st
 
 --st (precomputed)
 DROP TABLE st
