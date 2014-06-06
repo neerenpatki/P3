@@ -14,6 +14,9 @@ ArrayList<String> p_name_list=new ArrayList<String>();//product ID, 10
 ArrayList<String> u_name_list=new ArrayList<String>();//customer ID,20
 HashMap<Integer, Integer> product_ID_amount	=	new HashMap<Integer, Integer>();
 HashMap<Integer, Integer> customer_ID_amount=	new HashMap<Integer, Integer>();
+HashMap<Integer, Integer> customer_total=	new HashMap<Integer, Integer>();
+HashMap<Integer, Integer> product_total=	new HashMap<Integer, Integer>();
+HashMap<Integer, Integer> customer_cells=	new HashMap<Integer, Integer>();
 %>
 <%
 	String  state=null, category=null, age=null;
@@ -69,12 +72,12 @@ try
 		//SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
 		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
 		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
+		/*SQL_ut="insert into u_t (id, name) "+SQL_1;
 		SQL_pt="insert into p_t (id, name) "+SQL_2;
 		SQL_row="select count(*) from users";
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";*/
 	}
 	
 	if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
@@ -89,19 +92,6 @@ try
 	    SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
 	}
-	if(("All").equals(state) && ("0").equals(category) && !("0").equals(age))//0,0,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select id,name from users where age>"+minAge+" and age<="+maxAge+" order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where age>"+minAge+" and age<="+maxAge+" ";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
 	if(!("All").equals(state) && ("0").equals(category) && ("0").equals(age))//1,0,0
 	{
 		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
@@ -112,19 +102,6 @@ try
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
-	}
-	if(("All").equals(state) && !("0").equals(category) && !("0").equals(age))//0,1,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select id,name from users where age>"+minAge+" and age<="+maxAge+" order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where age>"+minAge+" and age<="+maxAge+" ";
-		SQL_col="select count(*) from products where cid="+category+"";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
 	}
 	if(!("All").equals(state) && !("0").equals(category) && ("0").equals(age))//1,1,0
 	{
@@ -138,43 +115,16 @@ try
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
 
 	}
-	if(!("All").equals(state) && ("0").equals(category) && !("0").equals(age))//1,0,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select id,name from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+" order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+" ";
-		SQL_col="select count(*) from products";	
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
-	if(!("All").equals(state) && !("0").equals(category) && !("0").equals(age))//1,1,1
-	{
-		String minAge=age.split("_")[0];
-		String maxAge=age.split("_")[1];
-		SQL_1="select id,name from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+" order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where state='"+state+"' and age>"+minAge+" and age<="+maxAge+" ";
-		SQL_col="select count(*) from products where cid="+category+"";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"' and u.age>"+minAge+" and u.age<="+maxAge+"  group by s.pid;";
-	}
 	
-
 	//customer name
 	rs=stmt.executeQuery(SQL_1);
 	while(rs.next())
 	{
-		u_id=rs.getInt(1);   
+		/*u_id=rs.getInt(1);   
 		u_name=rs.getString(2);
 		u_list.add(u_id);
 		u_name_list.add(u_name);
-		customer_ID_amount.put(u_id, 0);
+		customer_ID_amount.put(u_id, 0);*/
 		
 	}
 //	out.println(SQL_1+"<br>"+SQL_2+"<br>"+SQL_pt+"<BR>"+SQL_ut+"<br>"+SQL_row+"<BR>"+SQL_col+"<br>");
@@ -182,18 +132,18 @@ try
 	rs=stmt.executeQuery(SQL_2);
 	while(rs.next())
 	{
-		p_id=rs.getInt(1);   
+		/*p_id=rs.getInt(1);   
 		p_name=rs.getString(2);
 		p_list.add(p_id);
 	    p_name_list.add(p_name);
-		product_ID_amount.put(p_id,0);
+		product_ID_amount.put(p_id,0);*/
 		
 	}
 	
 	
 	//temporary table
 	conn.setAutoCommit(false);
-	stmt2.execute("CREATE TEMP TABLE p_t (id int, name text)ON COMMIT DELETE ROWS;");
+	/*stmt2.execute("CREATE TEMP TABLE p_t (id int, name text)ON COMMIT DELETE ROWS;");
 	stmt2.execute("CREATE TEMP TABLE u_t (id int, name text)ON COMMIT DELETE ROWS;");
 	//customer tempory table
 	stmt2.execute(SQL_ut);
@@ -213,7 +163,7 @@ try
 	if(rs.next())
 	{
 		maxProduct=rs.getInt(1);
-	}
+	}*/
 	
 %>	
 <%	
@@ -226,14 +176,14 @@ try
 	rs=stmt.executeQuery(SQL_amount_row);
 	while(rs.next())
 	{
-		u_id=rs.getInt(1);
+		/*u_id=rs.getInt(1);
 		u_amount_price=rs.getInt(2);
 		if(customer_ID_amount.get(u_id)!=null)
 		{
 			customer_ID_amount.put(u_id,u_amount_price);
-		}
+		}*/
    }
-	rs=stmt.executeQuery(SQL_amount_col);
+	/*rs=stmt.executeQuery(SQL_amount_col);
 	while(rs.next())
 	{
 		p_id=rs.getInt(1);   
@@ -242,7 +192,7 @@ try
 		{
 			product_ID_amount.put(p_id,p_amount_price);
 		}
-	}
+	}*/
 
    
     int i=0,j=0;
@@ -404,6 +354,7 @@ try
 }
 catch(Exception e)
 {
+  out.println(e);
   out.println("Fail! Please connect your database first.");
 }
 %>	
