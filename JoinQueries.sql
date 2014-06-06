@@ -198,7 +198,6 @@ CREATE INDEX users_state ON users(state)
 CREATE INDEX users_name ON users(name)
 CREATE INDEX sales_uid ON sales(uid)
 
-DROP TABLE prod_user;
 DROP TABLE prodTot;
 DROP TABLE cat_user;
 DROP TABLE customers;
@@ -206,6 +205,11 @@ DROP TABLE st;
 DROP TABLE prod_st;
 
 --product,user (precomputed) KEEP
+
+
+DROP TABLE prod_user;
+DROP TABLE prod_st
+--product,user (precomputed)
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
@@ -215,6 +219,8 @@ SELECT * FROM prod_user
 
 --product,state (precomputed) KEEP
 DROP TABLE prod_st
+--product,state (precomputed)
+
 CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
@@ -242,7 +248,18 @@ FROM (SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT
 
 
 
+--total for customers
+SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
+----------------------------------------
+--total for customers
+SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
+
+--state filter
+SELECT id, uname, SUM(sum) FROM prod_user WHERE state = 'California' GROUP BY id, uname ORDER BY sum DESC LIMIT 20
+
+--category filter
+SELECT id, uname, SUM(sum) FROM prod_user WHERE cid = 1 GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
 --all
 SELECT SUM(sum) FROM prod_user
