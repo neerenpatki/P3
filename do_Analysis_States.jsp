@@ -143,8 +143,8 @@ try
 %>
 	<table align="center" width="100%" border="1">
 		<tr align="center">
-			<td width="12%"><table align="center" width="100%" border="0"><tr align="center"><td><strong><font size="+2" color="#9933CC">STATE</font></strong></td></tr></table></td>
-			<td width="88%">
+			<td width="17%"><table align="center" width="100%" border="0"><tr align="center"><td><strong><font size="+2" color="#9933CC">STATE</font></strong></td></tr></table></td>
+			<td width="83%">
 				<table align="center" width="100%" border="1">
 					<tr align="center">
 <%	
@@ -176,7 +176,7 @@ try
 		</tr>
 	</table>
 <table align="center" width="100%" border="1">
-<tr><td width="12%">
+<tr><td width="17%">
 	<table align="center" width="100%" border="1">
 	<%	
 		for(i=0;i<s_name_list.size();i++)
@@ -187,16 +187,16 @@ try
 				amount_show = (Integer)state_total.get(s_name);
 				if(amount_show!=0)
 				{
-					out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+s_name+"(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td></tr>");
+					out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+s_name+"(<font color='#0000ff'>$"+amount_show+"</font>)</strong></td></tr>");
 				}
 				else
 				{
-					out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+s_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
+					out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+s_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
 				}	
 			}
 			else
 			{
-				out.println("<tr align=\"center\"><td width=\"10%\"><strong>"+s_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
+				out.println("<tr align=\"center\"><td width=\"17%\"><strong>"+s_name+"(<font color='#ff0000'>$0</font>)</strong></td></tr>");
 			}
 		}
 	%>
