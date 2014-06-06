@@ -234,10 +234,23 @@ SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
 SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
 
 -- State total for specific category
-SELECT state, SUM(sum) FROM prod_st WHERE cid = category GROUP BY state ORDER BY sum desc LIMIT 20
+SELECT state, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- State total for specific state and category
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 2 GROUP BY state ORDER BY sum desc
 
 -- Product totals (top 10 products)
 SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT 10
+
+-- Product totals for specific category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state and category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 1 GROUP BY name ORDER BY sum desc LIMIT 20
+
 
 -- State cells for top 20 states
 SELECT * FROM prod_st WHERE state IN (SELECT state 
