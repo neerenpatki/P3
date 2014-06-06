@@ -21,11 +21,8 @@ HashMap<String, Integer> customer_cells=	new HashMap<String, Integer>();
 <%
 	String  state=null, category=null, age=null;
 	try { 
-	out.println("before");
 			state     =	request.getParameter("state"); 
 			category  =	request.getParameter("category"); 
-		out.println(state);
-		out.println(category);
 			age       =	request.getParameter("age"); 			
 	}
 	catch(Exception e) 
@@ -102,10 +99,17 @@ try
 		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+"' AND cid ="+category+" GROUP BY name ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
+		String SQL_users = "SELECT u.name FROM users u, states s "+
+		"WHERE s.id = u.stateID and state = '"+state+"'";
+		rs=stmt.executeQuery(SQL_users);
 	}
-	
+	ArrayList<String> users = new ArrayList<String>();
+	if (rs != null) {
+		while (rs.next()) {
+			users.add(rs.getString(1));
+		}
+	}
 	//customer name
-	out.println("here");
 	rs=stmt.executeQuery(SQL_1);
 
 	while(rs.next())
@@ -116,8 +120,18 @@ try
 		customer_total.put(u_name, u_tot);
 		//u_list.add(u_id);
 		u_name_list.add(u_name);
+		users.remove(u_name);
 		//customer_ID_amount.put(u_id, 0);
 		
+	}
+	out.println(users.size() + " "+ u_name_list.size() + " " + show_num_row);
+	int k = 0;
+	for (int i = u_name_list.size(); i < show_num_row; i++) {
+		if (k < users.size()) {
+			out.println(k);
+			u_name_list.add(users.get(k));
+			k++;
+		}
 	}
 //	out.println(SQL_1+"<br>"+SQL_2+"<br>"+SQL_pt+"<BR>"+SQL_ut+"<br>"+SQL_row+"<BR>"+SQL_col+"<br>");
 	//product name
