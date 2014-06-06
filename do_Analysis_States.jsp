@@ -197,7 +197,9 @@ try
 	rs=stmt.executeQuery(SQL_cells);
 	while (rs.next()) {
 		// Store the key as prodName_state
-		state_cells.put(rs.getString(2)+"_"+rs.getString(4), rs.getInt(5));
+		p_name = rs.getString(2);
+		s_name = rs.getString(4);
+		state_cells.put(p_name+"_"+s_name, rs.getInt(5));
 	}
 	/*rs=stmt.executeQuery(SQL_amount_row);
 	while(rs.next())
@@ -290,23 +292,22 @@ try
 				p_id	=   p_list.get(j);
 				pos_idPair.put(i+"_"+j, s_name+"_"+p_id);
 				idPair_amount.put(s_name+"_"+p_id,0);
-			}*/ 
+			}*/
 		}
 	%>
 	</table>
 </td>
 <td width="88%">	
 	<%	
-		
-		SQL_amount_cell="select u.state, s.pid, sum(s.quantity*s.price) from us_t u,ps_t p, sales s where s.uid=u.id and s.pid=p.id group by u.state, s.pid;";
-		 rs=stmt.executeQuery(SQL_amount_cell);
-		 while(rs.next())
+		/*SQL_amount_cell="select u.state, s.pid, sum(s.quantity*s.price) from us_t u,ps_t p, sales s where s.uid=u.id and s.pid=p.id group by u.state, s.pid;";
+		 rs=stmt.executeQuery(SQL_amount_cell);*/
+		 /*for (int i = 0; s_name_list.size(); i++)
 		 {
 			 s_name=rs.getString(1);
 			 p_id=rs.getInt(2);
 			 amount=rs.getInt(3);
 			 idPair_amount.put(s_name+"_"+p_id, amount);
-		 }
+		 }*/
 		
 	%>	 
 	<table align="center" width="100%" border="1">
@@ -314,20 +315,27 @@ try
 		String idPair="";
 		for(i=0;i<s_name_list.size();i++)
 		{
+			s_name = s_name_list.get(i);
 			out.println("<tr  align='center'>");
-			for(j=0;j<p_list.size();j++)
+			for(j=0;j<p_name_list.size();j++)
 			{
-				idPair=(String)pos_idPair.get(i+"_"+j);
-				amount=(Integer)idPair_amount.get(idPair);
-				if(amount==0)
+				p_name = p_name_list.get(j);
+				if (state_cells.get(p_name+"_"+s_name) != null)
 				{
+					amount = (Integer)state_cells.get(p_name+"_"+s_name);
+					if(amount==0)
+					{
+						out.println("<td width=\"10%\"><font color='#ff0000'>0</font></td>");
+					}
+					else
+					{
+						out.println("<td width=\"10%\"><font color='#0000ff'><b>"+amount+"</b></font></td>");
+					}
+					amount=0;
+				}
+				else {
 					out.println("<td width=\"10%\"><font color='#ff0000'>0</font></td>");
 				}
-				else
-				{
-					out.println("<td width=\"10%\"><font color='#0000ff'><b>"+amount+"</b></font></td>");
-				}
-				amount=0;
 			}
 			out.println("</tr>");
 		}
