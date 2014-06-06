@@ -14,9 +14,9 @@ ArrayList<String> p_name_list=new ArrayList<String>();//product ID, 10
 ArrayList<String> u_name_list=new ArrayList<String>();//customer ID,20
 HashMap<Integer, Integer> product_ID_amount	=	new HashMap<Integer, Integer>();
 HashMap<Integer, Integer> customer_ID_amount=	new HashMap<Integer, Integer>();
-HashMap<Integer, Integer> customer_total=	new HashMap<Integer, Integer>();
-HashMap<Integer, Integer> product_total=	new HashMap<Integer, Integer>();
-HashMap<Integer, Integer> customer_cells=	new HashMap<Integer, Integer>();
+HashMap<String, Integer> customer_total=	new HashMap<String, Integer>();
+HashMap<String, Integer> product_total=	new HashMap<String, Integer>();
+HashMap<String, Integer> customer_cells=	new HashMap<String, Integer>();
 %>
 <%
 	String  state=null, category=null, age=null;
@@ -48,10 +48,12 @@ HashMap<Integer, Integer> customer_cells=	new HashMap<Integer, Integer>();
 Connection	conn=null;
 Statement 	stmt,stmt2;
 ResultSet 	rs=null;
-String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=null;
+String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=null, SQL_cells=null;
 String  	SQL_amount_row=null,SQL_amount_col=null,SQL_amount_cell=null;
 int 		p_id=0,u_id=0;
 String		p_name=null,u_name=null;
+String 		st_name = null, prod_name = null;
+int 		st_tot = 0, prod_tot = 0;
 int 		p_amount_price=0,u_amount_price=0;
 
 int show_num_row=20, show_num_col=10;
@@ -70,8 +72,9 @@ try
 	if(("All").equals(state) && ("0").equals(category) && ("0").equals(age))//0,0,0
 	{
 		//SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
+		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20"; //our updated customer query
+		SQL_2 = "SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT "+show_num_col;
+		//SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
 		/*SQL_ut="insert into u_t (id, name) "+SQL_1;
 		SQL_pt="insert into p_t (id, name) "+SQL_2;
 		SQL_row="select count(*) from users";
@@ -80,7 +83,7 @@ try
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";*/
 	}
 	
-	if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
+	/*if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
 	{
 		SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
 		//SQL_1="SELECT id, uname FROM customers ORDER BY sum desc LIMIT 20";
@@ -114,17 +117,17 @@ try
 		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
 
-	}
+	}*/
 	
 	//customer name
 	rs=stmt.executeQuery(SQL_1);
 	while(rs.next())
 	{
-		/*u_id=rs.getInt(1);   
+		u_id=rs.getInt(1);   
 		u_name=rs.getString(2);
 		u_list.add(u_id);
 		u_name_list.add(u_name);
-		customer_ID_amount.put(u_id, 0);*/
+		customer_ID_amount.put(u_id, 0);
 		
 	}
 //	out.println(SQL_1+"<br>"+SQL_2+"<br>"+SQL_pt+"<BR>"+SQL_ut+"<br>"+SQL_row+"<BR>"+SQL_col+"<br>");
@@ -132,6 +135,11 @@ try
 	rs=stmt.executeQuery(SQL_2);
 	while(rs.next())
 	{
+		prod_name = rs.getString(2);
+		prod_tot = rs.getInt(3);
+		product_total.put(prod_name, prod_tot);
+		p_list.add(rs.getInt(1)); // Store the pid of the top 10 products
+		p_name_list.add(prod_name); // Store the names of the top 10 products
 		/*p_id=rs.getInt(1);   
 		p_name=rs.getString(2);
 		p_list.add(p_id);
@@ -143,27 +151,27 @@ try
 	
 	//temporary table
 	conn.setAutoCommit(false);
-	/*stmt2.execute("CREATE TEMP TABLE p_t (id int, name text)ON COMMIT DELETE ROWS;");
-	stmt2.execute("CREATE TEMP TABLE u_t (id int, name text)ON COMMIT DELETE ROWS;");
+	//stmt2.execute("CREATE TEMP TABLE p_t (id int, name text)ON COMMIT DELETE ROWS;");
+	//stmt2.execute("CREATE TEMP TABLE u_t (id int, name text)ON COMMIT DELETE ROWS;");
 	//customer tempory table
-	stmt2.execute(SQL_ut);
+	//stmt2.execute(SQL_ut);
 	//product tempory table
-	stmt2.execute(SQL_pt);
+	//stmt2.execute(SQL_pt);
 
 	
 	//count the total tuples in  usres and products after filterings
 	int maxUser=0;
-	rs=stmt.executeQuery(SQL_row);//if only customer can buy products, then limit to only customers
+	//rs=stmt.executeQuery(SQL_row);//if only customer can buy products, then limit to only customers
 	if(rs.next())
 	{
 		maxUser=rs.getInt(1);
 	}
 	int maxProduct=0;
-	rs=stmt.executeQuery(SQL_col);//if only customer can buy products, then limit to only customers
+	//rs=stmt.executeQuery(SQL_col);//if only customer can buy products, then limit to only customers
 	if(rs.next())
 	{
 		maxProduct=rs.getInt(1);
-	}*/
+	}
 	
 %>	
 <%	
@@ -173,7 +181,7 @@ try
 	
 //	out.println(SQL_amount_row+"<br>"+SQL_amount_col+"<br>"+SQL_amount_cell+"<BR>");
 	
-	rs=stmt.executeQuery(SQL_amount_row);
+	//rs=stmt.executeQuery(SQL_amount_row);
 	while(rs.next())
 	{
 		/*u_id=rs.getInt(1);
@@ -272,14 +280,14 @@ try
 </td>
 <td width="88%">	
 	<%	
-		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
-		 rs=stmt.executeQuery(SQL_amount_cell);
+		//SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
+		 //rs=stmt.executeQuery(SQL_amount_cell);
 		 while(rs.next())
 		 {
-			 u_id=rs.getInt(1);
+			 /*u_id=rs.getInt(1);
 			 p_id=rs.getInt(2);
 			 amount=rs.getInt(3);
-			 idPair_amount.put(u_id+"_"+p_id, amount);
+			 idPair_amount.put(u_id+"_"+p_id, amount);*/
 		 }
 		
 	%>	 
