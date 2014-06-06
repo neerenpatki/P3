@@ -21,8 +21,11 @@ HashMap<String, Integer> customer_cells=	new HashMap<String, Integer>();
 <%
 	String  state=null, category=null, age=null;
 	try { 
+	out.println("before");
 			state     =	request.getParameter("state"); 
 			category  =	request.getParameter("category"); 
+		out.println(state);
+		out.println(category);
 			age       =	request.getParameter("age"); 			
 	}
 	catch(Exception e) 
@@ -69,60 +72,42 @@ try
 	stmt2 =conn.createStatement();
 	
 	
-	if(("All").equals(state) && ("0").equals(category) && ("0").equals(age))//0,0,0
+	if(("All").equals(state) && ("0").equals(category))//0,0,0
 	{
-		//SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
 		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20"; //our updated customer query
-		SQL_2 = "SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT "+show_num_col;
-		//SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_2 = "SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
 	}
 	
-	/*if(("All").equals(state) && !("0").equals(category) && ("0").equals(age))//0,1,0
+	if(("All").equals(state) && !("0").equals(category))//0,1,0
 	{
-		SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		//SQL_1="SELECT id, uname FROM customers ORDER BY sum desc LIMIT 20";
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users";
-		SQL_col="select count(*) from products where cid="+category+"";
-	    SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE cid ="+category+" GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
+		SQL_2="SELECT state, SUM(sum) FROM prod_st WHERE cid ="+category+" GROUP BY state ORDER BY sum desc LIMIT 20";
+		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
+		"FROM ("+SQL_1+") as u)";
 	}
-	if(!("All").equals(state) && ("0").equals(category) && ("0").equals(age))//1,0,0
+	if(!("All").equals(state) && ("0").equals(category))//1,0,0
 	{
-		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where state='"+state+"' ";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
+		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE state ='"+state+"' GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
+		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+
+		"' GROUP BY name ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
+		"FROM ("+SQL_1+") as u)";
+		out.println("here1");
 	}
-	if(!("All").equals(state) && !("0").equals(category) && ("0").equals(age))//1,1,0
+	if(!("All").equals(state) && !("0").equals(category))//1,1,0
 	{
-		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where state='"+state+"' ";
-		SQL_col="select count(*) from products where cid="+category+"";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
-
-	}*/
+		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE state = '"+state+"' AND cid ="+category+" GROUOP BY id, uname ORDER BY sum DESC LIMIT 20" ;
+		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+"' AND category ="+category+" GROUP BY name ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
+		"FROM ("+SQL_1+") as u)";
+	}
 	
 	//customer name
+	out.println("here");
 	rs=stmt.executeQuery(SQL_1);
+
 	while(rs.next())
 	{
 		//u_id=rs.getInt(1);   
