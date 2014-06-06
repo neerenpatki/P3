@@ -202,9 +202,6 @@ DROP TABLE prodTot;
 DROP TABLE cat_user;
 DROP TABLE customers;
 DROP TABLE st;
-DROP TABLE prod_st;
-
---product,user (precomputed) KEEP
 
 
 DROP TABLE prod_user;
@@ -217,8 +214,6 @@ ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE u.name is 
 
 SELECT * FROM prod_user
 
---product,state (precomputed) KEEP
-DROP TABLE prod_st
 --product,state (precomputed)
 
 CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
@@ -226,32 +221,7 @@ FROM products p LEFT OUTER JOIN categories c
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE state is not null GROUP BY p.id, state )
 SELECT * FROM prod_st
-
--- State totals (top 20 states)
-SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
-
--- State total for specific state
-SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
-
--- State total for specific category
-SELECT state, SUM(sum) FROM prod_st WHERE cid = category GROUP BY state ORDER BY sum desc LIMIT 20
-
--- Product totals (top 10 products)
-SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT 10
-
--- State cells for top 20 states
-SELECT * FROM prod_st WHERE state IN (SELECT state 
-FROM (SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20) as u)
-
-
-
-
-
-
---total for customers
-SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
-
-----------------------------------------
+---------------------------
 --total for customers
 SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
@@ -260,6 +230,57 @@ SELECT id, uname, SUM(sum) FROM prod_user WHERE state = 'California' GROUP BY id
 
 --category filter
 SELECT id, uname, SUM(sum) FROM prod_user WHERE cid = 1 GROUP BY id, uname ORDER BY sum DESC LIMIT 20
+
+-- customer cells for top 20 customers
+SELECT * FROM prod_user WHERE uanme IN (SELECT uname 
+FROM (SELECT uname, SUM(sum) FROM prod_user GROUP BY uname ORDER BY sum desc LIMIT 20) as u)
+
+---------------------------
+-- State totals (top 20 states)
+SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- State total for specific state
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
+
+-- State total for specific category
+SELECT state, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY state ORDER BY sum desc LIMIT 20
+
+-- State total for specific state and category
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 2 GROUP BY state ORDER BY sum desc
+
+-- Product totals (top 10 products)
+SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10
+
+-- Product total for category filter
+SELECT name, SUM(sum) FROM prod_st WHERE cid = 1 GROUP BY name ORDER BY sum desc LIMIT 10
+
+-- Product totals for specific category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY name ORDER BY sum desc LIMIT 20
+
+-- Product totals for specific state and category (top 10 products)
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 1 GROUP BY name ORDER BY sum desc LIMIT 20
+
+
+-- State cells for top 20 states
+SELECT * FROM prod_st WHERE state IN (SELECT state 
+FROM (SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20) as u)
+---------------------------
+
+
+SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
+
+
+
+
+
+
+
+
+
+
 
 --all
 SELECT SUM(sum) FROM prod_user
@@ -501,3 +522,9 @@ SQL_1="select s.id, s.state from users u, states s where u.stateID = s.id "+
 		SQL_col="select count(*) from products";
 		SQL_amount_row="select u.state, sum(s.quantity*s.price) from  us_t u, sales s  where s.uid=u.id group by u.state;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from ps_t p, sales s where s.pid=p.id  group by s.pid;";
+
+
+
+SELECT * FROM users;
+SELECT * FROM states;
+SELECT u.id, u.name, s.state from users u, states s where u.stateID = s.id
