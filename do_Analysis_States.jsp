@@ -19,7 +19,7 @@ HashMap<String, Integer> state_cells = new HashMap<String, Integer>();
 	try { 
 			state     =	request.getParameter("state"); 
 			category  =	request.getParameter("category"); 
-			age       =	request.getParameter("age"); 			
+			//age       =	request.getParameter("age"); 			
 	}
 	catch(Exception e) 
 	{ 

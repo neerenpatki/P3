@@ -42,15 +42,15 @@ function doSearch()
 	 var pos_col=$("currentFlag_col").value;
 	 var state=$("search_key_1").value;
 	 var category=$("search_key_2").value;
-	 var age=$("search_key_3").value;
+	 //var age=$("search_key_3").value;
 	if(type==1)//customer
 	{
 		
-          url = "do_Analysis_Customers.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category+"&&age="+age;
+          url = "do_Analysis_Customers.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category;
 	}
 	else//state
 	{
-		   url = "do_Analysis_States.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category+"&&age="+age;
+		   url = "do_Analysis_States.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category;
 	}
 	var req = getAjax();
 	req.open("GET", url, true);
