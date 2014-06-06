@@ -74,7 +74,7 @@ try
 	
 	if(("All").equals(state) && ("0").equals(category))//0,0,0
 	{
-		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20"; //our updated customer query
+		SQL_1="SELECT uname, SUM(sum) FROM prod_user GROUP BY uname ORDER BY sum DESC LIMIT 20"; //our updated customer query
 		SQL_2 = "SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
@@ -82,14 +82,14 @@ try
 	
 	if(("All").equals(state) && !("0").equals(category))//0,1,0
 	{
-		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE cid ="+category+" GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
+		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE cid ="+category+" GROUP BY uname ORDER BY sum DESC LIMIT 20";
 		SQL_2="SELECT state, SUM(sum) FROM prod_st WHERE cid ="+category+" GROUP BY state ORDER BY sum desc LIMIT 20";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
 	}
 	if(!("All").equals(state) && ("0").equals(category))//1,0,0
 	{
-		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE state ='"+state+"' GROUP BY id, uname ORDER BY sum DESC LIMIT 20";
+		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE state ='"+state+"' GROUP BY uname ORDER BY sum DESC LIMIT 20";
 		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+
 		"' GROUP BY name ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
@@ -98,7 +98,7 @@ try
 	}
 	if(!("All").equals(state) && !("0").equals(category))//1,1,0
 	{
-		SQL_1="SELECT id, uname, SUM(sum) FROM prod_user WHERE state = '"+state+"' AND cid ="+category+" GROUOP BY id, uname ORDER BY sum DESC LIMIT 20" ;
+		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE state = '"+state+"' AND cid ="+category+" GROUP BY uname ORDER BY sum DESC LIMIT 20" ;
 		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+"' AND category ="+category+" GROUP BY name ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
@@ -111,8 +111,8 @@ try
 	while(rs.next())
 	{
 		//u_id=rs.getInt(1);   
-		u_name=rs.getString(2);
-		u_tot=rs.getInt(3);
+		u_name=rs.getString(1);
+		u_tot=rs.getInt(2);
 		customer_total.put(u_name, u_tot);
 		//u_list.add(u_id);
 		u_name_list.add(u_name);
@@ -124,10 +124,10 @@ try
 	rs=stmt.executeQuery(SQL_2);
 	while(rs.next())
 	{
-		prod_name = rs.getString(2);
-		prod_tot = rs.getInt(3);
+		prod_name = rs.getString(1);
+		prod_tot = rs.getInt(2);
 		product_total.put(prod_name, prod_tot);
-		p_list.add(rs.getInt(1)); // Store the pid of the top 10 products
+		//p_list.add(rs.getInt(1)); // Store the pid of the top 10 products
 		p_name_list.add(prod_name); // Store the names of the top 10 products
 		/*p_id=rs.getInt(1);   
 		p_name=rs.getString(2);
@@ -274,13 +274,6 @@ try
 	<%	
 		//SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
 		 //rs=stmt.executeQuery(SQL_amount_cell);
-		 while(rs.next())
-		 {
-			 /*u_id=rs.getInt(1);
-			 p_id=rs.getInt(2);
-			 amount=rs.getInt(3);
-			 idPair_amount.put(u_id+"_"+p_id, amount);*/
-		 }
 		
 	%>	 
 	<table align="center" width="100%" border="1">
