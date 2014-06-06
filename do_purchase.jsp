@@ -76,8 +76,8 @@ if(session.getAttribute("name")!=null)
 					String password="880210";
 					conn =DriverManager.getConnection(url, user, password);
 					stmt =conn.createStatement();
-					tempstmt = conn.createStatement();
-				    prodUserStmt = conn.createStatement();
+					tempstmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				    prodUserStmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 				    checkStmt = conn.createStatement();
 				    checkStmt2 = conn.createStatement();
 				    sumStmt = conn.createStatement();
@@ -86,7 +86,7 @@ if(session.getAttribute("name")!=null)
 				    /* To insert new tuple into prod_user */
 				    PreparedStatement prodUserpstmt = conn.prepareStatement( "INSERT INTO prod_user(pid, name, cid, id, uname, state, sum) VALUES(?, ?, ?, ?, ?, ?, ?);");
 				    
-				    PreparedStatement 
+				    PreparedStatement prodStpstmt = conn.prepareStatement("INSERT INTO prod_st(pid, name, cid, state, sum) VALUES (?, ?, ?, ?, ?);");
 				    
 				    /* Update a tuple in prod_user */
 				    PreparedStatement updatepstmt = conn.prepareStatement( "UPDATE prod_user SET sum = sum + ? WHERE pid = ? AND id = ?;");
@@ -155,27 +155,41 @@ if(session.getAttribute("name")!=null)
 				    
 				    if(checkRS2.next()){
                         while(sumRS2.next()){
-                                out.println("ADSJASDAS");
                                 updateStatepstmt.setInt(3, sumRS2.getInt(2));
                                 updateStatepstmt.setString(2, sumRS2.getString(1));
                                 updateStatepstmt.setInt(1, sumRS2.getInt(3));
                                 updateStatepstmt.execute();
-                        
                         }
 				    }
 				    else{
-				            
+				        prodUserRS.beforeFirst();
+				        out.println("HERE");
+				        while(prodUserRS.next()){
+
+				                productName = prodUserRS.getString(1);//
+							    categoryID = prodUserRS.getInt(2);//
+							    userName = prodUserRS.getString(3);
+							    stateName = prodUserRS.getString(4);//
+							    prodUserSum = prodUserRS.getInt(5);//
+				        
+				        
+				            //Assign pid and uid to each tuple ONCE
+				            out.println("SDADD");
+				                rs.beforeFirst();
+							    if(rs.next()){
+							        pid = rs.getInt(3);
+							        prodStpstmt.setInt(1, pid);
+                                }
 				    
+				            prodStpstmt.setString(2, productName);
+				            prodStpstmt.setInt(3, categoryID);
+				            prodStpstmt.setString(4, stateName);
+				            prodStpstmt.setInt(5, prodUserSum);
+				            prodStpstmt.execute();
 				    
-				    
+				        }
 				    }
-				    
-				
-				    
-				    
-				    
-				    
-				    		
+
 
 							out.println("Dear customer '"+uName+"', Thanks for your purchasing.<br> Your card '"+card+"' has been successfully proved. <br>We will ship the products soon.");
 							out.println("<br><font size=\"+2\" color=\"#990033\"> <a href=\"products_browsing.jsp\" target=\"_self\">Continue purchasing</a></font>");
