@@ -19,6 +19,7 @@ if(session.getAttribute("name")!=null)
 		<tr><td><a href="buyShoppingCart.jsp" target="_self">Buy Shopping Cart</a></td></tr>
 	</table>	
 </div>
+
 <div style="width:79%; position:absolute; top:50px; right:0px; height:90%; border-left:1px; border-left-style:solid;border-right:1px; border-right-style:solid;border-top:1px; border-top-style:solid;">
 <p><table align="center" width="80%" style="border-bottom-width:2px; border-top-width:2px; border-bottom-style:solid; border-top-style:solid">
 	<tr><td align="left"><font size="+3">Purchase Order</font></td><td align="right"><font size="+3"><font size="+2">Computer Science &  Engineering</font> </font></td></tr>
@@ -53,6 +54,7 @@ if(session.getAttribute("name")!=null)
 			 total_price+=amount_price;
 			 out.println("<tr><td width=\"30%\">"+name+"</td><td width=\"25%\">"+price+"</td><td width=\"25%\">"+quantity+"</td><td width=\"20%\">$"+amount_price+"</td></tr>");
 		}
+		
 		out.println("<tr><td align=\"right\" colspan=\"3\"><font size=\"+2\">Purchase Order Total</font></td><td align=\"right\"><font size=\"+2\" color='#ff0000'>$"+total_price+"</font></td></tr>");
 		out.println("</table>");
 	}
