@@ -202,6 +202,9 @@ DROP TABLE prodTot;
 DROP TABLE cat_user;
 DROP TABLE customers;
 DROP TABLE st;
+DROP TABLE prod_st;
+
+--product,user (precomputed) KEEP
 
 
 DROP TABLE prod_user;
@@ -210,37 +213,27 @@ DROP TABLE prod_st
 CREATE TABLE prod_user AS (SELECT p.id as pid, p.name, p.cid, u.id, u.name as uname, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
-ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE u.name is not null GROUP BY p.id, u.id, state)
+ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) GROUP BY p.id, u.id, state)
 
 SELECT * FROM prod_user
-
+SELECT u.id, u.name, s.state FROM users u, states s WHERE s.id = u.stateID and state = 'Alaska'
+--product,state (precomputed) KEEP
+DROP TABLE prod_st
 --product,state (precomputed)
+
+SELECT id FROM sales
 
 CREATE TABLE prod_st AS (SELECT p.id as pid, p.name, p.cid, state, SUM(s.quantity*s.price) 
 FROM products p LEFT OUTER JOIN categories c 
 ON (p.cid = c.id) LEFT OUTER JOIN sales s ON (p.id = s.pid) LEFT OUTER JOIN users u 
 ON s.uid = u.id LEFT OUTER JOIN states st ON(u.stateID = st.id) WHERE state is not null GROUP BY p.id, state )
 SELECT * FROM prod_st
----------------------------
---total for customers
-SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
---state filter
-SELECT id, uname, SUM(sum) FROM prod_user WHERE state = 'California' GROUP BY id, uname ORDER BY sum DESC LIMIT 20
-
---category filter
-SELECT id, uname, SUM(sum) FROM prod_user WHERE cid = 1 GROUP BY id, uname ORDER BY sum DESC LIMIT 20
-
--- customer cells for top 20 customers
-SELECT * FROM prod_user WHERE uanme IN (SELECT uname 
-FROM (SELECT uname, SUM(sum) FROM prod_user GROUP BY uname ORDER BY sum desc LIMIT 20) as u)
-
----------------------------
 -- State totals (top 20 states)
 SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20
 
 -- State total for specific state
-SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY state
+SELECT state, SUM(sum) FROM prod_st WHERE state = 'Alabama' GROUP BY state
 
 -- State total for specific category
 SELECT state, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY state ORDER BY sum desc LIMIT 20
@@ -249,38 +242,41 @@ SELECT state, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY state ORDER BY sum de
 SELECT state, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 2 GROUP BY state ORDER BY sum desc
 
 -- Product totals (top 10 products)
-SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10
-
--- Product total for category filter
-SELECT name, SUM(sum) FROM prod_st WHERE cid = 1 GROUP BY name ORDER BY sum desc LIMIT 10
+SELECT pid, name, SUM(sum) FROM prod_st GROUP BY pid,name ORDER BY sum desc LIMIT 10
 
 -- Product totals for specific category (top 10 products)
 SELECT name, SUM(sum) FROM prod_st WHERE cid = 2 GROUP BY name ORDER BY sum desc LIMIT 20
 
 -- Product totals for specific state (top 10 products)
-SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' GROUP BY name ORDER BY sum desc LIMIT 20
+SELECT name, SUM(sum) FROM prod_st WHERE state = 'Alabama' GROUP BY name ORDER BY sum desc LIMIT 20
 
 -- Product totals for specific state and category (top 10 products)
 SELECT name, SUM(sum) FROM prod_st WHERE state = 'California' AND cid = 1 GROUP BY name ORDER BY sum desc LIMIT 20
+
+SELECT uname, SUM(sum) FROM prod_user WHERE state = 'Alabama' AND cid = 1 GROUP BY uname ORDER BY sum DESC LIMIT 20
 
 
 -- State cells for top 20 states
 SELECT * FROM prod_st WHERE state IN (SELECT state 
 FROM (SELECT state, SUM(sum) FROM prod_st GROUP BY state ORDER BY sum desc LIMIT 20) as u)
----------------------------
 
 
+
+
+
+
+--total for customers
 SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
+----------------------------------------
+--total for customers
+SELECT id, uname, SUM(sum) FROM prod_user GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
+--state filter
+SELECT id, uname, SUM(sum) FROM prod_user WHERE state = 'California' GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
-
-
-
-
-
-
-
+--category filter
+SELECT id, uname, SUM(sum) FROM prod_user WHERE cid = 1 GROUP BY id, uname ORDER BY sum DESC LIMIT 20
 
 --all
 SELECT SUM(sum) FROM prod_user
