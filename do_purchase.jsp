@@ -163,7 +163,6 @@ if(session.getAttribute("name")!=null)
 				    }
 				    else{
 				        prodUserRS.beforeFirst();
-				        out.println("HERE");
 				        while(prodUserRS.next()){
 
 				                productName = prodUserRS.getString(1);//
@@ -173,8 +172,7 @@ if(session.getAttribute("name")!=null)
 							    prodUserSum = prodUserRS.getInt(5);//
 				        
 				        
-				            //Assign pid and uid to each tuple ONCE
-				            out.println("SDADD");
+				                //Assign pid and uid to each tuple ONCE
 				                rs.beforeFirst();
 							    if(rs.next()){
 							        pid = rs.getInt(3);
