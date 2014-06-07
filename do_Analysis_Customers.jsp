@@ -80,7 +80,7 @@ try
 	if(("All").equals(state) && !("0").equals(category))//0,1,0
 	{
 		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE cid ="+category+" GROUP BY uname ORDER BY sum DESC LIMIT 20";
-		SQL_2="SELECT state, SUM(sum) FROM prod_st WHERE cid ="+category+" GROUP BY state ORDER BY sum desc LIMIT 10";
+		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE cid ="+category+" GROUP BY name ORDER BY sum desc LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
 		"FROM ("+SQL_1+") as u)";
 	}
