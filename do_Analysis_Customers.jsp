@@ -71,7 +71,7 @@ try
 	
 	if(("All").equals(state) && ("0").equals(category))//0,0,0
 	{
-		SQL_1="SELECT uname, sum FROM customers ORDER BY sum DESC LIMIT 20";
+		SQL_1="SELECT uname, SUM(sum) FROM customers GROUP BY uname ORDER BY sum DESC LIMIT 20";
 		SQL_2 = "SELECT name, sum FROM prodTot ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 	}
@@ -84,7 +84,8 @@ try
 	}
 	if(!("All").equals(state) && ("0").equals(category))//1,0,0
 	{
-		SQL_1="SELECT uname, sum FROM customers WHERE state = '"+state+"' ORDER BY sum DESC LIMIT 20";
+		SQL_1="SELECT uname, SUM(sum) FROM customers WHERE state = '"+state+
+		"' GROUP BY uname ORDER BY sum DESC LIMIT 20";
 		SQL_2="SELECT name, sum FROM prodTot WHERE state = '"+state+"' ORDER BY sum DESC LIMIT 10";
 		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 	}

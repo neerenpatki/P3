@@ -85,7 +85,7 @@ if(session.getAttribute("name")!=null)
 				/* Check if tuple in prod_st already exists with the given attributes */
 				String checkSQL2 = "SELECT ps.pid, ps.name, s.state FROM prod_st ps, carts c, users u, states s WHERE c.pid = ps.pid AND c.uid = u.id AND u.stateID = s.id AND ps.state = s.state;";
 				
-				/* Check if product from carts is already in prodUser */
+				/* Check if product from carts is already in prodTot */
 				String checkSQL3 = "SELECT pu.pid FROM prod_user pu, carts c WHERE pu.pid = c.pid;";
 				
 				/* Check in carts, prodUser */
