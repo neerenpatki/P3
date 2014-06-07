@@ -36,10 +36,10 @@ public class DataGeneratorBulk
 		int Num_products	=	1000;//1000
 		int Num_sales		=	100000000;//10000
 		
-		 String  usersPath		=	"/Users/neerenpatki/Documents/UCSD/users.txt",
-	    		 categoriesPath	=	"/Users/neerenpatki/Documents/UCSD/categories.txt",
-	    		 productsPath	=	"/Users/neerenpatki/Documents/UCSD/products.txt",
-	     		 salesPath		=	"/Users/neerenpatki/Documents/UCSD/sales.txt";
+		 String  usersPath		=	"/Users/timchi/Documents/CSE135DB/users.txt",
+	    		 categoriesPath	=	"/Users/timchi/Documents/CSE135DB/categories.txt",
+	    		 productsPath	=	"/Users/timchi/Documents/CSE135DB/products.txt",
+	     		 salesPath		=	"/Users/timchi/Documents/CSE135DB/sales.txt";
 		
 		DataGeneratorBulk dg=new DataGeneratorBulk();
 		dg.createData(usersPath, categoriesPath, productsPath, salesPath, Num_users,Num_categories,Num_products,Num_sales);
@@ -116,22 +116,22 @@ public class DataGeneratorBulk
 	}
 	public void copy(String usersPath,String categoriesPath,String productsPath, String salesPath) throws SQLException
 	{
-		//String statesPath = "/Users/neerenpatki/Documents/UCSD/states.txt";
-		//System.out.println("==========================================================");
-		/*System.out.println("Inserting states data...");
-		stmt.execute("COPY states(state) FROM '"+statesPath+"' USING DELIMITERS ',';");
-		System.out.println("Successfully inserted states");*/
+		String statesPath = "/Users/timchi/Documents/CSE135DB/states.txt";
+		System.out.println("==========================================================");
+		System.out.println("Inserting states data...");
+		//stmt.execute("COPY states(state) FROM '"+statesPath+"' USING DELIMITERS ',';");
+		System.out.println("Successfully inserted states");
 		System.out.println("Inserting users data.....");
 		stmt.execute("COPY users(name,role,age,stateID) FROM '"+usersPath+"' USING DELIMITERS ',';");
 		System.out.println("Successfully inserting users data into database");
-		/*System.out.println("Inserting categories data.....");
-		stmt.execute("COPY categories (name,description) FROM '"+categoriesPath+"' USING DELIMITERS ',';");
+		System.out.println("Inserting categories data.....");
+		//stmt.execute("COPY categories (name,description) FROM '"+categoriesPath+"' USING DELIMITERS ',';");
 		System.out.println("Successfully inserting categories data into database");
 		System.out.println("Inserting products data.....");
-		stmt.execute("COPY products(cid,name,SKU,price) FROM '"+productsPath+"' USING DELIMITERS ',';");
+		//stmt.execute("COPY products(cid,name,SKU,price) FROM '"+productsPath+"' USING DELIMITERS ',';");
 		System.out.println("Successfully inserting products data into database");
 		System.out.println("Inserting sales data.....");
-		stmt.execute("COPY sales(uid,pid,quantity,price) FROM '"+salesPath+"' USING DELIMITERS ',';");*/
+		//stmt.execute("COPY sales(uid,pid,quantity,price) FROM '"+salesPath+"' USING DELIMITERS ',';");
 		System.out.println("Successfully inserting sales data into database");
 	}
 	public boolean closeConn() throws SQLException
@@ -208,7 +208,6 @@ public class DataGeneratorBulk
 		SQLs.add("insert into states (state) values ('West Virginia');");
 		SQLs.add("insert into states (state) values ('Wisconsin');");
 		SQLs.add("insert into states (state) values ('Wyoming');");*/
-		
 		while(flag<Num_users)
 		{
 			age=r.nextInt(88)+12;

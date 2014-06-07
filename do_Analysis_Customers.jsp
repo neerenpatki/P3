@@ -71,33 +71,28 @@ try
 	
 	if(("All").equals(state) && ("0").equals(category))//0,0,0
 	{
-		SQL_1="SELECT uname, SUM(sum) FROM prod_user GROUP BY uname ORDER BY sum DESC LIMIT 20"; //our updated customer query
-		SQL_2 = "SELECT name, SUM(sum) FROM prod_st GROUP BY name ORDER BY sum desc LIMIT 10";
-		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
-		"FROM ("+SQL_1+") as u)";
+		SQL_1="SELECT uname, sum FROM customers ORDER BY sum DESC LIMIT 20";
+		SQL_2 = "SELECT name, sum FROM prodTot ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 	}
 	
 	if(("All").equals(state) && !("0").equals(category))//0,1,0
 	{
-		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE cid ="+category+" GROUP BY uname ORDER BY sum DESC LIMIT 20";
-		SQL_2="SELECT state, SUM(sum) FROM prod_st WHERE cid ="+category+" GROUP BY state ORDER BY sum desc LIMIT 10";
-		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
-		"FROM ("+SQL_1+") as u)";
+		SQL_1="SELECT uname, sum FROM customers WHERE cid = "+category+" ORDER BY sum DESC LIMIT 20";
+		SQL_2="SELECT name, sum FROM prodTot WHERE cid = "+category+" ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 	}
 	if(!("All").equals(state) && ("0").equals(category))//1,0,0
 	{
-		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE state ='"+state+"' GROUP BY uname ORDER BY sum DESC LIMIT 20";
-		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+
-		"' GROUP BY name ORDER BY sum DESC LIMIT 10";
-		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
-		"FROM ("+SQL_1+") as u)";
+		SQL_1="SELECT uname, sum FROM customers WHERE state = '"+state+"' ORDER BY sum DESC LIMIT 20";
+		SQL_2="SELECT name, sum FROM prodTot WHERE state = '"+state+"' ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 	}
 	if(!("All").equals(state) && !("0").equals(category))//1,1,0
 	{
-		SQL_1="SELECT uname, SUM(sum) FROM prod_user WHERE state = '"+state+"' AND cid ="+category+" GROUP BY uname ORDER BY sum DESC LIMIT 20" ;
-		SQL_2="SELECT name, SUM(sum) FROM prod_st WHERE state ='"+state+"' AND cid ="+category+" GROUP BY name ORDER BY sum DESC LIMIT 10";
-		SQL_cells="SELECT * FROM prod_user WHERE uname IN (SELECT uname "+ 
-		"FROM ("+SQL_1+") as u)";
+		SQL_1="SELECT uname, sum FROM customers WHERE state = '"+state+"' AND cid = "+category+" ORDER BY sum DESC LIMIT 20";
+		SQL_2="SELECT name, sum FROM prodTot WHERE state = '"+state+"' AND cid = "+category+" ORDER BY sum DESC LIMIT 10";
+		SQL_cells="SELECT * FROM prod_user WHERE name IN (SELECT name FROM ("+SQL_2+") as v) AND uname IN (SELECT uname FROM ("+SQL_1+") as u)";
 		String SQL_users = "SELECT u.name FROM users u, states s "+
 		"WHERE s.id = u.stateID and state = '"+state+"'";
 		rs=stmt.executeQuery(SQL_users);
