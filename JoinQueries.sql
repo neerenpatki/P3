@@ -302,6 +302,51 @@ SELECT cid, SUM(sum) FROM cat_user GROUP BY cid
 CREATE TABLE customers AS (SELECT id, uname, state, SUM(sum) FROM cat_user where id is not null GROUP BY id, uname, state)
 
 
+DROP TABLE prodTot
+--product (precomputed) KEEP (how much spent on each product total)*
+CREATE TABLE prodTot AS (SELECT pid, name, cid, state, SUM(sum) FROM prod_user GROUP BY pid, name, cid, state)
+
+--category,user (precomputed) KEEP (how much a user spent in a category) *
+CREATE TABLE cat_user AS (SELECT cid, id, uname, state, SUM(sum) FROM prod_user WHERE id is not null GROUP BY cid, id, uname, state)
+
+DROP TABLE customers
+--user (precomputed) KEEP (how much each user spent total) *
+CREATE TABLE customers AS (SELECT id, uname, state, cid, SUM(sum) FROM cat_user WHERE id is not null GROUP BY id, uname, state,cid)
+
+--all state, all category
+SELECT uname, sum FROM customers ORDER BY sum DESC LIMIT 20
+SELECT name, sum FROM prodTot WHERE state = ORDER BY sum DESC LIMIT 10
+
+--state, all category
+SELECT uname, sum FROM customers WHERE state = 'Alabama' ORDER BY sum DESC LIMIT 20
+SELECT name, sum FROM prodTot WHERE state = 'Alabama' ORDER BY sum DESC LIMIT 10
+
+--all state, category
+SELECT uname, sum FROM customers WHERE cid = 1 ORDER BY sum DESC LIMIT 20
+SELECT name, sum FROM prodTot WHERE cid = 1 ORDER BY sum DESC LIMIT 10
+
+--state, category
+SELECT uname, sum FROM customers WHERE state = 'Alabama' AND cid = 1 ORDER BY sum DESC LIMIT 20
+SELECT name, sum FROM prodTot WHERE state = AND cid = ORDER BY sum DESC LIMIT 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --st (precomputed)
 DROP TABLE st
