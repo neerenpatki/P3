@@ -62,7 +62,7 @@ if(session.getAttribute("name")!=null)
 				String cat_userSQL = "SELECT p.cid, c.uid, u.name, s.state, SUM(c.price * c.quantity) FROM carts c, products p, users u, states s WHERE c.uid = u.id AND c.pid = p.id AND u.stateID = s.id GROUP BY p.cid, c.uid, u.name, s.state;";
 											
 				/* Get the sum of transaction from carts*/
-				String prodUserSumSQL = "SELECT uid, pid, SUM(c.price * c.quantity) FROM carts c, users u GROUP BY uid, pid;";
+				String prodUserSumSQL = "SELECT c.uid, c.pid, SUM(c.price * c.quantity) FROM carts c, prod_user pu WHERE c.uid = pu.id AND pu.pid = c.pid GROUP BY c.uid, c.pid;";
 				
 				/*Get sum of transaction from carts*/
 				String prodStSumSQL = "SELECT s.state, c.pid, SUM(c.price * c.quantity) FROM users u, carts c, states s WHERE c.uid = u.id AND u.stateID = s.id GROUP BY s.state, c.pid";
@@ -154,7 +154,7 @@ if(session.getAttribute("name")!=null)
 					/**record log,i.e., sales table**/
 					stmt.execute(SQL_copy); 
 					rs =  tempstmt.executeQuery(tempSQL);
-					//prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
+					prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
 					//productRS = productStmt.executeQuery(productSQL);
 					//customerRS = customerStmt.executeQuery(customerSQL);
 					//cat_userRS = cat_userStmt.executeQuery(cat_userSQL);
@@ -188,8 +188,7 @@ if(session.getAttribute("name")!=null)
 					    }
 					}									
 					else{
-						prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
-
+						//prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
 						/*Store fields to insert into prod_User */
 						while(prodUserRS.next()){
 						
