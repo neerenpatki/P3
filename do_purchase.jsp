@@ -36,9 +36,9 @@ if(session.getAttribute("name")!=null)
 		 {
 	
 			Connection conn=null;
-			Statement stmt=null, prodUserStmt = null, productStmt = null, customerStmt = null, tempstmt = null, checkStmt = null, checkStmt2 = null, checkStmt3 = null, checkStmt4 = null, checkStmt5 = null, sumStmt = null, sumStmt2 = null, sumStmt3 = null, sumStmt4 = null, sumStmt5 = null;
+			Statement stmt=null, prodUserStmt = null, productStmt = null, customerStmt = null, cat_userStmt = null, tempstmt = null, checkStmt = null, checkStmt2 = null, checkStmt3 = null, checkStmt4 = null, checkStmt5 = null, sumStmt = null, sumStmt2 = null, sumStmt3 = null, sumStmt4 = null, sumStmt5 = null;
 			
-			ResultSet prodUserRS = null, productRS = null, customerRS = null, rs = null, checkRS = null, checkRS2 = null, checkRS3 = null, checkRS4 = null, checkRS5 = null, sumRS = null, sumRS2 = null, sumRS3 = null, sumRS4 = null, sumRS5 = null;
+			ResultSet prodUserRS = null, productRS = null, customerRS = null, cat_userRS = null, rs = null, checkRS = null, checkRS2 = null, checkRS3 = null, checkRS4 = null, checkRS5 = null, sumRS = null, sumRS2 = null, sumRS3 = null, sumRS4 = null, sumRS5 = null;
 			String productName = null, userName = null, stateName = null;
 			int categoryID = 0;
 			int prodUserSum = 0;
@@ -58,6 +58,8 @@ if(session.getAttribute("name")!=null)
 				String productSQL = "SELECT c.pid, p.name, p.cid, SUM(c.price * c.quantity) FROM carts c, products p WHERE c.pid = p.id GROUP BY c.pid, p.name, p.cid;";
 				
 				String customerSQL = "SELECT c.uid, u.name, s.state, SUM(c.price * c.quantity) FROM carts c, users u, states s WHERE c.uid = u.id AND u.stateID = s.id GROUP BY c.uid, u.name, s.state;";
+				
+				String cat_userSQL = "SELECT p.cid, c.uid, u.name, s.state, SUM(c.price * c.quantity) FROM carts c, products p, users u, states s WHERE c.uid = u.id AND c.pid = p.id AND u.stateID = s.id GROUP BY p.cid, c.uid, u.name, s.state;";
 											
 				/* Get the sum of transaction from carts*/
 				String prodUserSumSQL = "SELECT uid, pid, SUM(c.price * c.quantity) FROM carts c, users u GROUP BY uid, pid;";
@@ -114,6 +116,7 @@ if(session.getAttribute("name")!=null)
 			    sumStmt5 = conn.createStatement();
 			    productStmt = conn.createStatement();
 			    customerStmt = conn.createStatement();
+			    cat_userStmt = conn.createStatement();
 				    
 			    /* To insert new tuple into prod_user */
 			    PreparedStatement prodUserpstmt = conn.prepareStatement( "INSERT INTO prod_user(pid, name, cid, id, uname, state, sum) VALUES(?, ?, ?, ?, ?, ?, ?);");
@@ -123,6 +126,10 @@ if(session.getAttribute("name")!=null)
 			    
 			    /* Insert customers */
 			    PreparedStatement customerpstmt = conn.prepareStatement("INSERT INTO customers(id, uname, state, sum) VALUES (?, ?, ?, ?);");
+			    
+			    /* Insert cat_user */
+			    PreparedStatement cat_userpstmt = conn.prepareStatement("INSERT INTO cat_user(cid, id, uname, state, sum) VALUES (?, ?, ?, ?, ?);");
+			    
 			    /*Insert new tuple into prodTot*/
 			    PreparedStatement productstmt = conn.prepareStatement("INSERT INTO prodTot(pid, name, cid, sum) VALUES(?, ?, ?, ?);");
 				    
@@ -150,6 +157,7 @@ if(session.getAttribute("name")!=null)
 					prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
 					productRS = productStmt.executeQuery(productSQL);
 					customerRS = customerStmt.executeQuery(customerSQL);
+					cat_userRS = cat_userStmt.executeQuery(cat_userSQL);
 					checkRS = checkStmt.executeQuery(checkSQL);
 					checkRS2 = checkStmt2.executeQuery(checkSQL2);
 					checkRS3 = checkStmt3.executeQuery(checkSQL3);
@@ -298,7 +306,16 @@ if(session.getAttribute("name")!=null)
                         updateCat_Userpstmt.setInt(2, sumRS5.getInt(1));
                         updateCat_Userpstmt.setInt(3, sumRS5.getInt(2));
                         updateCat_Userpstmt.execute();
-                    
+                    }
+                }
+                else{
+                    while(cat_userRS.next()){
+                        cat_userpstmt.setInt(1, cat_userRS.getInt(1));
+                        cat_userpstmt.setInt(2, cat_userRS.getInt(2));
+                        cat_userpstmt.setString(3, cat_userRS.getString(3));
+                        cat_userpstmt.setString(4, cat_userRS.getString(4));
+                        cat_userpstmt.setInt(5, cat_userRS.getInt(5));
+                        cat_userpstmt.execute();
                     }
                 
                 }
