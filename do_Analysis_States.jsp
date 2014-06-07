@@ -65,6 +65,7 @@ try
 	stmt =conn.createStatement();
 	stmt2 =conn.createStatement();
 
+	double start = System.nanoTime();
 	
 	if(("All").equals(state) && ("0").equals(category))//0,0
 	{
@@ -237,6 +238,9 @@ try
 </td>
 </tr>
 <%
+	double end = System.nanoTime();
+	double totalTime = (end - start) / 1000000000.0;
+	out.println("Total time: " + totalTime);
     conn.commit();
 	conn.setAutoCommit(true);
 	conn.close();

@@ -306,6 +306,7 @@ DROP TABLE prodTot
 --product (precomputed) KEEP (how much spent on each product total)*
 CREATE TABLE prodTot AS (SELECT pid, name, cid, state, SUM(sum) FROM prod_user GROUP BY pid, name, cid, state)
 
+DROP TABLE cat_user
 --category,user (precomputed) KEEP (how much a user spent in a category) *
 CREATE TABLE cat_user AS (SELECT cid, id, uname, state, SUM(sum) FROM prod_user WHERE id is not null GROUP BY cid, id, uname, state)
 
@@ -332,8 +333,10 @@ SELECT name, sum FROM prodTot WHERE state = AND cid = ORDER BY sum DESC LIMIT 10
 
 
 
-
-
+CREATE INDEX p_u_name ON prod_user(name);
+CREATE INDEX p_u_uname ON prod_user(uname);
+CREATE INDEX p_s_state ON prod_st(state);
+CREATE INDEX p_s_cid ON prod_st(cid);
 
 
 

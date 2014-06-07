@@ -154,20 +154,20 @@ if(session.getAttribute("name")!=null)
 					/**record log,i.e., sales table**/
 					stmt.execute(SQL_copy); 
 					rs =  tempstmt.executeQuery(tempSQL);
-					prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
-					productRS = productStmt.executeQuery(productSQL);
-					customerRS = customerStmt.executeQuery(customerSQL);
-					cat_userRS = cat_userStmt.executeQuery(cat_userSQL);
+					//prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
+					//productRS = productStmt.executeQuery(productSQL);
+					//customerRS = customerStmt.executeQuery(customerSQL);
+					//cat_userRS = cat_userStmt.executeQuery(cat_userSQL);
 					checkRS = checkStmt.executeQuery(checkSQL);
 					checkRS2 = checkStmt2.executeQuery(checkSQL2);
 					checkRS3 = checkStmt3.executeQuery(checkSQL3);
 					checkRS4 = checkStmt4.executeQuery(checkSQL4);
 					checkRS5 = checkStmt5.executeQuery(checkSQL5);
-					sumRS = sumStmt.executeQuery(prodUserSumSQL);
-					sumRS2 = sumStmt2.executeQuery(prodStSumSQL);
-					sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
-					sumRS4 = sumStmt4.executeQuery(customersSumSQL);
-					sumRS5 = sumStmt5.executeQuery(cat_userSumSQL);
+					//sumRS = sumStmt.executeQuery(prodUserSumSQL);
+					//sumRS2 = sumStmt2.executeQuery(prodStSumSQL);
+					//sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
+					//sumRS4 = sumStmt4.executeQuery(customersSumSQL);
+					//sumRS5 = sumStmt5.executeQuery(cat_userSumSQL);
 					
 					
 								
@@ -179,6 +179,7 @@ if(session.getAttribute("name")!=null)
 	//*************************** PROD USER **************************************//	
 					//Check if user,product tuple is already in prod_user	
 					if(checkRS.next()){
+						sumRS = sumStmt.executeQuery(prodUserSumSQL);
 					    while(sumRS.next()){//the correct sum from an RS has a next{
 					        //Update the prepared statement
 					        //Execute the prepared statement
@@ -189,6 +190,8 @@ if(session.getAttribute("name")!=null)
 					    }
 					}									
 					else{
+						prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
+
 						/*Store fields to insert into prod_User */
 						while(prodUserRS.next()){
 						
@@ -223,6 +226,7 @@ if(session.getAttribute("name")!=null)
 				    
 //*********************PROD STATE ***********************//				    
 				    if(checkRS2.next()){
+				    	sumRS2 = sumStmt2.executeQuery(prodStSumSQL);
                         while(sumRS2.next()){
                             updateStatepstmt.setInt(3, sumRS2.getInt(2));
                             updateStatepstmt.setString(2, sumRS2.getString(1));
@@ -261,6 +265,7 @@ if(session.getAttribute("name")!=null)
 //********************PRODUCTS*****************//
 
                 if(checkRS3.next()){
+                	sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
                     while(sumRS3.next()){
                         updateProductpstmt.setInt(1, sumRS3.getInt(4));
                         updateProductpstmt.setInt(2, sumRS3.getInt(1));
@@ -268,6 +273,7 @@ if(session.getAttribute("name")!=null)
                     }
                   }  
                 else{
+                	productRS = productStmt.executeQuery(productSQL);
                     while(productRS.next()){
                         productstmt.setInt(1, productRS.getInt(1));
                         productstmt.setString(2, productRS.getString(2));
@@ -280,6 +286,7 @@ if(session.getAttribute("name")!=null)
 //***customers **//
                 
                 if(checkRS4.next()){
+                	sumRS4 = sumStmt4.executeQuery(customersSumSQL);
                     while(sumRS4.next()){
                         updateCustomerspstmt.setInt(1, sumRS4.getInt(2));
                         updateCustomerspstmt.setInt(2, sumRS4.getInt(1));
@@ -288,6 +295,7 @@ if(session.getAttribute("name")!=null)
                     }
                 }
                 else{
+                	customerRS = customerStmt.executeQuery(customerSQL);
                     while(customerRS.next()){
                         customerpstmt.setInt(1, customerRS.getInt(1));
                         customerpstmt.setString(2, customerRS.getString(2));
@@ -301,6 +309,7 @@ if(session.getAttribute("name")!=null)
 //**category user**//
 
                 if(checkRS5.next()){
+                	sumRS5 = sumStmt5.executeQuery(cat_userSumSQL);
                     while(sumRS5.next()){
                         updateCat_Userpstmt.setInt(1, sumRS5.getInt(3));
                         updateCat_Userpstmt.setInt(2, sumRS5.getInt(1));
@@ -309,6 +318,7 @@ if(session.getAttribute("name")!=null)
                     }
                 }
                 else{
+                	cat_userRS = cat_userStmt.executeQuery(cat_userSQL);
                     while(cat_userRS.next()){
                         cat_userpstmt.setInt(1, cat_userRS.getInt(1));
                         cat_userpstmt.setInt(2, cat_userRS.getInt(2));
