@@ -36,8 +36,8 @@ if(session.getAttribute("name")!=null)
 		 {
 	
 				Connection conn=null;
-				Statement stmt=null, prodUserStmt = null, tempstmt = null, checkStmt = null, sumStmt = null;
-				ResultSet prodUserRS = null, rs = null, checkRS = null, sumRS = null;
+				Statement stmt=null, prodUserStmt = null, tempstmt = null, checkStmt = null, checkStmt2 = null, sumStmt = null, sumStmt2 = null;
+				ResultSet prodUserRS = null, rs = null, checkRS = null, checkRS2 = null, sumRS = null, sumRS2 = null;
 				String productName = null, userName = null, stateName = null;
 				int categoryID = 0;
 				int prodUserSum = 0;
@@ -52,15 +52,21 @@ if(session.getAttribute("name")!=null)
 					
 					/* TO UPDATE prod_user TABLE */
 					String prodUserSQL = "SELECT p.name, p.cid, u.name, s.state, SUM(c.price * c.quantity) AS sum FROM products p, carts c, users u, states s WHERE p.id = c.pid AND c.uid = u.id AND u.stateID = s.id GROUP BY p.name, p.cid, u.name, s.state " + ";";
+										
 					
 					/* Get the sum of transaction from carts*/
-					String prodUserSumSQL = "SELECT uid, pid, SUM(c.price * c.quantity) FROM carts c GROUP BY uid, pid;";
+					String prodUserSumSQL = "SELECT uid, pid, SUM(c.price * c.quantity) FROM carts c, users u GROUP BY uid, pid;";
+					
+					/*Get sum of transaction from carts*/
+					String prodStSumSQL = "SELECT s.state, c.pid, SUM(c.price * c.quantity) FROM users u, carts c, states s WHERE c.uid = u.id AND u.stateID = s.id GROUP BY s.state, c.pid";
 					
 					/*Get the pid and uid from carts for current transaction */
 					String tempSQL = "SELECT * FROM carts c;"; 
 										
 					/* Check if tuple in prod_user already exists with given attribs */
 					String checkSQL = "SELECT pu.id, pu.uname FROM prod_user pu, carts c WHERE c.pid = pu.pid AND pu.id = c.uid;";
+					
+					String checkSQL2 = "SELECT ps.pid, ps.name, s.state FROM prod_st ps, carts c, users u, states s WHERE c.pid = ps.pid AND c.uid = u.id AND u.stateID = s.id AND ps.state = s.state;";
 										
 										
 										
@@ -70,16 +76,22 @@ if(session.getAttribute("name")!=null)
 					String password="880210";
 					conn =DriverManager.getConnection(url, user, password);
 					stmt =conn.createStatement();
-					tempstmt = conn.createStatement();
-				    prodUserStmt = conn.createStatement();
+					tempstmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				    prodUserStmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 				    checkStmt = conn.createStatement();
+				    checkStmt2 = conn.createStatement();
 				    sumStmt = conn.createStatement();
+				    sumStmt2 = conn.createStatement();
 				    
 				    /* To insert new tuple into prod_user */
 				    PreparedStatement prodUserpstmt = conn.prepareStatement( "INSERT INTO prod_user(pid, name, cid, id, uname, state, sum) VALUES(?, ?, ?, ?, ?, ?, ?);");
 				    
+				    PreparedStatement prodStpstmt = conn.prepareStatement("INSERT INTO prod_st(pid, name, cid, state, sum) VALUES (?, ?, ?, ?, ?);");
+				    
 				    /* Update a tuple in prod_user */
 				    PreparedStatement updatepstmt = conn.prepareStatement( "UPDATE prod_user SET sum = sum + ? WHERE pid = ? AND id = ?;");
+				    PreparedStatement updateStatepstmt = conn.prepareStatement( "UPDATE prod_st SET sum = sum + ? WHERE state = ? AND pid = ?;");
+				    
 					try{
 							conn.setAutoCommit(false);
 							/**record log,i.e., sales table**/
@@ -87,13 +99,16 @@ if(session.getAttribute("name")!=null)
 							rs =  tempstmt.executeQuery(tempSQL);
 							prodUserRS = prodUserStmt.executeQuery(prodUserSQL);
 							checkRS = checkStmt.executeQuery(checkSQL);
+							checkRS2 = checkStmt2.executeQuery(checkSQL2);
 							sumRS = sumStmt.executeQuery(prodUserSumSQL);
-							
-						
+							sumRS2 = sumStmt2.executeQuery(prodStSumSQL);
+								
 							stmt.execute(SQL);
 							conn.commit();							
 							conn.setAutoCommit(true);
 					
+					
+						
 					//Check if user,product tuple is already in prod_user	
 					if(checkRS.next()){
 					    while(sumRS.next()){//the correct sum from an RS has a next{
@@ -109,11 +124,11 @@ if(session.getAttribute("name")!=null)
 							/*Store fields to insert into prod_User */
 							while(prodUserRS.next()){
 							
-							    productName = prodUserRS.getString(1);
-							    categoryID = prodUserRS.getInt(2);
+							    productName = prodUserRS.getString(1);//
+							    categoryID = prodUserRS.getInt(2);//
 							    userName = prodUserRS.getString(3);
-							    stateName = prodUserRS.getString(4);
-							    prodUserSum = prodUserRS.getInt(5);
+							    stateName = prodUserRS.getString(4);//
+							    prodUserSum = prodUserRS.getInt(5);//
 							    
 							    //Assign pid and uid to each tuple ONCE
 							    if(rs.next()){
@@ -135,7 +150,44 @@ if(session.getAttribute("name")!=null)
 							    prodUserpstmt.execute();
 							    
 							}
-				}			
+				    }	
+				    
+				    
+				    if(checkRS2.next()){
+                        while(sumRS2.next()){
+                                updateStatepstmt.setInt(3, sumRS2.getInt(2));
+                                updateStatepstmt.setString(2, sumRS2.getString(1));
+                                updateStatepstmt.setInt(1, sumRS2.getInt(3));
+                                updateStatepstmt.execute();
+                        }
+				    }
+				    else{
+				        prodUserRS.beforeFirst();
+				        while(prodUserRS.next()){
+
+				                productName = prodUserRS.getString(1);//
+							    categoryID = prodUserRS.getInt(2);//
+							    userName = prodUserRS.getString(3);
+							    stateName = prodUserRS.getString(4);//
+							    prodUserSum = prodUserRS.getInt(5);//
+				        
+				        
+				                //Assign pid and uid to each tuple ONCE
+				                rs.beforeFirst();
+							    if(rs.next()){
+							        pid = rs.getInt(3);
+							        prodStpstmt.setInt(1, pid);
+                                }
+				    
+				            prodStpstmt.setString(2, productName);
+				            prodStpstmt.setInt(3, categoryID);
+				            prodStpstmt.setString(4, stateName);
+				            prodStpstmt.setInt(5, prodUserSum);
+				            prodStpstmt.execute();
+				    
+				        }
+				    }
+
 
 							out.println("Dear customer '"+uName+"', Thanks for your purchasing.<br> Your card '"+card+"' has been successfully proved. <br>We will ship the products soon.");
 							out.println("<br><font size=\"+2\" color=\"#990033\"> <a href=\"products_browsing.jsp\" target=\"_self\">Continue purchasing</a></font>");
