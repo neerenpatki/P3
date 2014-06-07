@@ -170,10 +170,8 @@ if(session.getAttribute("name")!=null)
 					//sumRS5 = sumStmt5.executeQuery(cat_userSumSQL);
 					
 					
-								
-					stmt.execute(SQL);
-					conn.commit();							
 					conn.setAutoCommit(true);
+					conn.commit();			
 					
 					
 	//*************************** PROD USER **************************************//	
@@ -329,6 +327,10 @@ if(session.getAttribute("name")!=null)
                     }
                 
                 }
+                conn.setAutoCommit(false);
+            	stmt.execute(SQL);
+				conn.commit();							
+				conn.setAutoCommit(true);
                 
 
 
