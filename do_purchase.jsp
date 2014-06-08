@@ -68,8 +68,11 @@ if(session.getAttribute("name")!=null)
 				String prodStSumSQL = "SELECT s.state, c.pid, SUM(c.price * c.quantity) FROM users u, carts c, states s WHERE c.uid = u.id AND u.stateID = s.id GROUP BY s.state, c.pid";
 				
 				/*Get sum of transaction from carts for each product */
-				String prodTotSumSQL = "SELECT	pu.pid, pu.name, pu.cid, SUM(c.price * c.quantity) FROM prodTot pu, carts c WHERE c.pid = pu.pid GROUP BY pu.pid, pu.name, pu.cid;";
+				//String prodTotSumSQL = "SELECT	pu.pid, pu.name, pu.cid, SUM(c.price * c.quantity) FROM prodTot pu, carts c WHERE c.pid = pu.pid GROUP BY pu.pid, pu.name, pu.cid;";
 				
+				String prodTotSumSQL = "SELECT DISTINCT	pu.pid, pu.name, pu.cid FROM prodTot pu, "+
+				" carts c WHERE c.pid = pu.pid;"
+
 				/*Get sum for customers */
 				String customersSumSQL = "SELECT c.uid, SUM(c.price * c.quantity) FROM carts c, customers cust WHERE c.uid = cust.id GROUP BY c.uid;";  
 				
@@ -88,8 +91,8 @@ if(session.getAttribute("name")!=null)
 				/* Check if product from carts is already in prodTot */
 				String checkSQL3 = "SELECT pu.pid FROM prod_user pu, carts c WHERE pu.pid = c.pid;";
 				
-				/* Check in carts, prodUser */
-				String checkSQL4 = "SELECT cust.id FROM customers cust, carts c WHERE cust.id = c.uid;";
+				/* Check in carts, customers */
+				String checkSQL4 = "SELECT c.uid, SUM(c.price * c.quantity) FROM carts c GROUP BY c.uid;";
 				
 				/* Check in category,user */
 				String checkSQL5 = "SELECT cu.id FROM cat_user cu, carts c, products p WHERE c.uid = cu.id AND p.cid = cu.cid;";
@@ -107,7 +110,7 @@ if(session.getAttribute("name")!=null)
 			    checkStmt = conn.createStatement();
 			    checkStmt2 = conn.createStatement();
 			    checkStmt3 = conn.createStatement();
-			    checkStmt4 = conn.createStatement();
+			    checkStmt4 = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    checkStmt5 = conn.createStatement();
 			    sumStmt = conn.createStatement();
 			    sumStmt2 = conn.createStatement();
@@ -270,12 +273,13 @@ if(session.getAttribute("name")!=null)
                     }
                   }  
                 else{
+                	checkRS4.first();
                 	productRS = productStmt.executeQuery(productSQL);
                     while(productRS.next()){
                         productstmt.setInt(1, productRS.getInt(1));
                         productstmt.setString(2, productRS.getString(2));
                         productstmt.setInt(3, productRS.getInt(3));
-                        productstmt.setInt(4, productRS.getInt(4));
+                        productstmt.setInt(4, checkRS4.getInt(2));
                         productstmt.execute();
                     }
                 }
