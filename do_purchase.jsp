@@ -71,7 +71,7 @@ if(session.getAttribute("name")!=null)
 				//String prodTotSumSQL = "SELECT	pu.pid, pu.name, pu.cid, SUM(c.price * c.quantity) FROM prodTot pu, carts c WHERE c.pid = pu.pid GROUP BY pu.pid, pu.name, pu.cid;";
 				
 				String prodTotSumSQL = "SELECT DISTINCT	pu.pid, pu.name, pu.cid FROM prodTot pu, "+
-				" carts c WHERE c.pid = pu.pid;"
+				" carts c WHERE c.pid = pu.pid;";
 
 				/*Get sum for customers */
 				String customersSumSQL = "SELECT c.uid, SUM(c.price * c.quantity) FROM carts c, customers cust WHERE c.uid = cust.id GROUP BY c.uid;";  
@@ -268,7 +268,7 @@ if(session.getAttribute("name")!=null)
                 	checkRS4.first();
                 	sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
                     while(sumRS3.next()){
-                        updateProductpstmt.setInt(1, checkRS4.getInt(1));
+                        updateProductpstmt.setInt(1, checkRS4.getInt(2));
                         updateProductpstmt.setInt(2, sumRS3.getInt(1));
                         updateProductpstmt.execute();
                     }
