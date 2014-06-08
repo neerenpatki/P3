@@ -265,9 +265,10 @@ if(session.getAttribute("name")!=null)
 //********************PRODUCTS*****************//
 
                 if(checkRS3.next()){
+                	checkRS4.first();
                 	sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
                     while(sumRS3.next()){
-                        updateProductpstmt.setInt(1, sumRS3.getInt(4));
+                        updateProductpstmt.setInt(1, checkRS4.getInt(1));
                         updateProductpstmt.setInt(2, sumRS3.getInt(1));
                         updateProductpstmt.execute();
                     }
