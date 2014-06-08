@@ -36,9 +36,9 @@ if(session.getAttribute("name")!=null)
 		 {
 	
 			Connection conn=null;
-			Statement stmt=null, prodUserStmt = null, productStmt = null, customerStmt = null, cat_userStmt = null, tempstmt = null, checkStmt = null, checkStmt2 = null, checkStmt3 = null, checkStmt4 = null, checkStmt5 = null, sumStmt = null, sumStmt2 = null, sumStmt3 = null, sumStmt4 = null, sumStmt5 = null;
+			Statement stmt=null, prodUserStmt = null, productStmt = null, customerStmt = null, cat_userStmt = null, tempstmt = null, checkStmt = null, checkStmt2 = null, checkStmt3 = null, checkStmt4 = null, checkStmt5 = null, sumStmt = null, sumStmt2 = null, sumStmt3 = null, sumStmt4 = null, sumStmt5 = null, stStmt = null;
 			
-			ResultSet prodUserRS = null, productRS = null, customerRS = null, cat_userRS = null, rs = null, checkRS = null, checkRS2 = null, checkRS3 = null, checkRS4 = null, checkRS5 = null, sumRS = null, sumRS2 = null, sumRS3 = null, sumRS4 = null, sumRS5 = null;
+			ResultSet prodUserRS = null, productRS = null, customerRS = null, cat_userRS = null, rs = null, checkRS = null, checkRS2 = null, checkRS3 = null, checkRS4 = null, checkRS5 = null, sumRS = null, sumRS2 = null, sumRS3 = null, sumRS4 = null, sumRS5 = null, stRS = null;
 			String productName = null, userName = null, stateName = null;
 			int categoryID = 0;
 			int prodUserSum = 0;
@@ -69,9 +69,9 @@ if(session.getAttribute("name")!=null)
 				
 				/*Get sum of transaction from carts for each product */
 				//String prodTotSumSQL = "SELECT	pu.pid, pu.name, pu.cid, SUM(c.price * c.quantity) FROM prodTot pu, carts c WHERE c.pid = pu.pid GROUP BY pu.pid, pu.name, pu.cid;";
-				
-				String prodTotSumSQL = "SELECT DISTINCT	pu.pid, pu.name, pu.cid FROM prodTot pu, "+
-				" carts c WHERE c.pid = pu.pid;";
+				String prodTotSumSQL = "SELECT pu.pid, pu.name, pu.cid FROM prodTot pu, carts c, users u WHERE c.pid = pu.pid GROUP BY pu.pid, pu.name, pu.cid";
+				String prodTot2SQL = "SELECT s.state FROM users u, carts c, states s WHERE c.uid = u.id AND u.stateID = s.id";
+				//String prodTotSumSQL = "SELECT DISTINCT	pu.pid, pu.name, pu.cid, pu.state FROM prodTot pu, "+" carts c WHERE c.pid = pu.pid;";
 
 				/*Get sum for customers */
 				String customersSumSQL = "SELECT c.uid, SUM(c.price * c.quantity) FROM carts c, customers cust WHERE c.uid = cust.id GROUP BY c.uid;";  
@@ -120,6 +120,7 @@ if(session.getAttribute("name")!=null)
 			    productStmt = conn.createStatement();
 			    customerStmt = conn.createStatement();
 			    cat_userStmt = conn.createStatement();
+			    stStmt = conn.createStatement();
 				    
 			    /* To insert new tuple into prod_user */
 			    PreparedStatement prodUserpstmt = conn.prepareStatement( "INSERT INTO prod_user(pid, name, cid, id, uname, state, sum) VALUES(?, ?, ?, ?, ?, ?, ?);");
@@ -143,7 +144,7 @@ if(session.getAttribute("name")!=null)
 			    PreparedStatement updateStatepstmt = conn.prepareStatement("UPDATE prod_st SET sum = sum + ? WHERE state = ? AND pid = ?;");
 			    
 			    /*Update a tuple in products */
-			    PreparedStatement updateProductpstmt = conn.prepareStatement("UPDATE prodTot SET sum = sum + ? WHERE pid = ?;");
+			    PreparedStatement updateProductpstmt = conn.prepareStatement("UPDATE prodTot SET sum = sum + ? WHERE pid = ? AND name = ? AND state = ?;");
 			    
 			    /*Update a tuple in customers */
 			    PreparedStatement updateCustomerspstmt = conn.prepareStatement("UPDATE customers SET sum = sum + ? WHERE id = ?;");
@@ -267,9 +268,15 @@ if(session.getAttribute("name")!=null)
                 if(checkRS3.next()){
                 	checkRS4.first();
                 	sumRS3 = sumStmt3.executeQuery(prodTotSumSQL);
+                	stRS = stStmt.executeQuery(prodTot2SQL);
                     while(sumRS3.next()){
+                    	stRS.next();
+                    	out.println(checkRS4.getInt(2));
                         updateProductpstmt.setInt(1, checkRS4.getInt(2));
                         updateProductpstmt.setInt(2, sumRS3.getInt(1));
+                        updateProductpstmt.setString(3, sumRS3.getString(2));
+
+                        updateProductpstmt.setString(4, stRS.getString(1));
                         updateProductpstmt.execute();
                     }
                   }  
